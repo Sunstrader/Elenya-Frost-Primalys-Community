@@ -1,0 +1,84 @@
+#game-quick-menu {
+  --k: clamp(.5px, .19vmin, 1.1px);        /* 1 px de maquette = --k ; règle l'échelle de tout le cadre */
+  border: 0; border-radius: 0;
+  background-color: transparent;
+  background-image:
+    var(--mn-stars),
+    var(--fx-noise),
+    radial-gradient(90% 55% at 50% 0%, rgba(255,255,255,.20), rgba(255,255,255,0) 70%),
+    linear-gradient(180deg, rgba(126,146,188,.60), rgba(104,124,168,.66));
+  background-size: 340px 340px, 160px 160px, auto, auto;
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
+  -webkit-backdrop-filter: blur(5px) saturate(1.2) brightness(.86);
+          backdrop-filter: blur(5px) saturate(1.2) brightness(.86);
+  box-shadow: inset 0 0 calc(var(--k) * 40) rgba(255,255,255,.12), 0 calc(var(--k) * 14) calc(var(--k) * 40) rgba(3,10,28,.5);
+  color: #fff; text-align: center;
+  text-shadow: 0 0 1px rgba(40,56,100,.95), 0 1px 2px rgba(34,48,92,.9), 0 calc(var(--k) * 3) calc(var(--k) * 9) rgba(22,36,78,.55);
+  letter-spacing: .035em;
+}
+#game-quick-menu::before, #game-quick-menu::after {
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(var(--k) * -48);
+  background-repeat: no-repeat;
+}
+#game-quick-menu::before {
+  z-index: 3;
+  background-image: var(--mn-corner-tl), var(--mn-corner-tr), var(--mn-corner-bl), var(--mn-corner-br), var(--mn-flake-tl), var(--mn-flake-bl), var(--mn-flake-br), var(--mn-sparkle), var(--mn-top-center), var(--mn-bottom-center);
+  background-size:
+    calc(var(--k) * 114) calc(var(--k) * 120),
+    calc(var(--k) * 120) calc(var(--k) * 120),
+    calc(var(--k) * 116) calc(var(--k) * 106),
+    calc(var(--k) * 120) calc(var(--k) * 106),
+    calc(var(--k) * 40) calc(var(--k) * 42),
+    calc(var(--k) * 60) calc(var(--k) * 64),
+    calc(var(--k) * 54) calc(var(--k) * 56),
+    calc(var(--k) * 22) calc(var(--k) * 22),
+    calc(var(--k) * 164) calc(var(--k) * 70),
+    calc(var(--k) * 98) calc(var(--k) * 34);
+  background-position:
+    left calc(var(--k) * 34) top calc(var(--k) * 35),
+    right calc(var(--k) * 30.5) top calc(var(--k) * 35),
+    left calc(var(--k) * 34) bottom calc(var(--k) * 38.5),
+    right calc(var(--k) * 28.5) bottom calc(var(--k) * 38.5),
+    left calc(var(--k) * 76) top calc(var(--k) * 71),
+    left calc(var(--k) * 64) bottom calc(var(--k) * 70.5),
+    right calc(var(--k) * 68.5) bottom calc(var(--k) * 62.5),
+    right calc(var(--k) * 100.5) top calc(var(--k) * 75),
+    calc(50% + calc(var(--k) * -1.25)) calc(var(--k) * 3),
+    calc(50% + calc(var(--k) * -2.25)) calc(100% - calc(var(--k) * 38.5));
+}
+#game-quick-menu::after {
+  z-index: 2;
+  background-image: var(--mn-edge-l), var(--mn-edge-r), var(--mn-edge-t), var(--mn-edge-b);
+  background-size: calc(var(--k) * 13) calc(var(--k) * 8), calc(var(--k) * 15) calc(var(--k) * 8), calc(var(--k) * 8) calc(var(--k) * 20), calc(var(--k) * 8) calc(var(--k) * 18);
+  background-repeat: repeat-y, repeat-y, repeat-x, repeat-x;
+  background-position:
+    left calc(var(--k) * 45) top 0, right calc(var(--k) * 42.5) top 0,
+    left 0 top calc(var(--k) * 43), left 0 bottom calc(var(--k) * 40.5);
+  -webkit-clip-path: polygon(calc(var(--k) * 148) 0, calc(50% - calc(var(--k) * 82)) 0, calc(50% - calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) 0, calc(100% - calc(var(--k) * 150.5)) 0, calc(100% - calc(var(--k) * 150.5)) calc(var(--k) * 155), 100% calc(var(--k) * 155), 100% calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) 100%, calc(50% + calc(var(--k) * 49)) 100%, calc(50% + calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) 100%, calc(var(--k) * 150) 100%, calc(var(--k) * 150) calc(100% - calc(var(--k) * 144.5)), 0 calc(100% - calc(var(--k) * 144.5)), 0 calc(var(--k) * 155), calc(var(--k) * 148) calc(var(--k) * 155));
+          clip-path: polygon(calc(var(--k) * 148) 0, calc(50% - calc(var(--k) * 82)) 0, calc(50% - calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) 0, calc(100% - calc(var(--k) * 150.5)) 0, calc(100% - calc(var(--k) * 150.5)) calc(var(--k) * 155), 100% calc(var(--k) * 155), 100% calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) 100%, calc(50% + calc(var(--k) * 49)) 100%, calc(50% + calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) 100%, calc(var(--k) * 150) 100%, calc(var(--k) * 150) calc(100% - calc(var(--k) * 144.5)), 0 calc(100% - calc(var(--k) * 144.5)), 0 calc(var(--k) * 155), calc(var(--k) * 148) calc(var(--k) * 155));
+}
+/* entrées : texte net + séparateur (losange) peint ; background-image seul => le fond au survol n'est pas écrasé */
+#game-quick-menu > :is(button, a, li, [role="menuitem"]) {
+  color: inherit; font-weight: 500; letter-spacing: inherit; text-shadow: inherit;
+}
+#game-quick-menu > :is(button, a, li, [role="menuitem"]):not(:last-child) {
+  background-image: var(--mn-divider);
+  background-repeat: no-repeat;
+  background-size: calc(var(--k) * 128) calc(var(--k) * 24);
+  background-position: center bottom;
+}
+
+/* ---------- BOUTON MENU : petit cadre argent (haut-droite) ---------- */
+#btn-landscape-menu {
+  border: 0;
+  background-color: rgba(120,140,178,.55);
+  background-image: var(--fx-frame-button);
+  background-size: contain; background-position: center; background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+          backdrop-filter: blur(8px) saturate(1.2);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(3,10,28,.45);
+  color: #f6f9ff;
+  -webkit-tap-highlight-color: transparent;
+}

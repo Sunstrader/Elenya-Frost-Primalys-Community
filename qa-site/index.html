@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Elenya — QA Studio</title>
+<style>
+:root{--bg:#090b12;--panel:#121722;--panel2:#181e2b;--line:#293245;--text:#edf1f8;--muted:#9da8ba;--accent:#c9a86a;--ok:#6fcf97;--bad:#ef7d7d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,-apple-system,Segoe UI,sans-serif;height:100vh;overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}button{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:9px 12px;cursor:pointer}button:hover{border-color:#59657c}
+.app{display:grid;grid-template-columns:280px 1fr 360px;height:100vh}
+.sidebar,.inspector{background:var(--panel);overflow:auto;padding:16px;border-color:var(--line)}
+.sidebar{border-right:1px solid var(--line)}.inspector{border-left:1px solid var(--line)}
+.brand{font-size:18px;font-weight:700;margin-bottom:4px}.sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.search{width:100%;padding:10px;background:#0d111a;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
+.scene-list{display:flex;flex-direction:column;gap:4px}.scene{padding:9px;border-radius:7px;cursor:pointer}.scene:hover,.scene.active{background:var(--panel2)}.scene small{display:block;color:var(--muted);margin-top:2px}
+.main{display:flex;flex-direction:column;min-width:0}.toolbar{display:flex;gap:8px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);background:#0e131d}.toolbar .grow{flex:1}.toolbar strong{font-size:13px}
+.stage{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.media{background:#05070b;border:1px solid var(--line);border-radius:12px;overflow:hidden}.media img{display:block;width:100%;max-height:54vh;object-fit:contain;background:#05070b}.media .empty{padding:60px;text-align:center;color:var(--muted)}
+.media-bar{display:flex;gap:8px;align-items:center;padding:8px 10px;background:#0d1118;color:var(--muted)}
+.badge{border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px}.badge.ok{color:var(--ok)}.badge.bad{color:var(--bad)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.title{font-size:24px;margin:0 0 4px}.meta{color:var(--muted);font-size:12px;margin-bottom:12px}.narrative{white-space:pre-wrap;line-height:1.6;font-family:Georgia,serif;font-size:17px}
+.choice{border:1px solid var(--line);border-radius:9px;padding:12px;margin-top:9px;background:#0d121b}.choice b{color:var(--accent)}.choice .effects{color:var(--muted);font-size:12px;margin-top:6px}
+.inspector h3{margin:0 0 10px}.note-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}.note-tabs button.active{border-color:var(--accent);color:var(--accent)}
+textarea{width:100%;min-height:180px;resize:vertical;background:#0b0f17;border:1px solid var(--line);border-radius:8px;padding:10px}
+.row{display:flex;gap:8px;margin-top:8px}.row>*{flex:1}.status{margin:12px 0;padding:10px;border-radius:8px;background:#0d121b;color:var(--muted)}
+.empty-state{margin:auto;text-align:center;color:var(--muted)}
+@media(max-width:1050px){.app{grid-template-columns:230px 1fr}.inspector{position:fixed;right:0;top:0;bottom:0;width:min(360px,92vw);transform:translateX(100%);transition:.2s;z-index:5}.inspector.open{transform:none}.mobile-toggle{display:block!important}}
+.mobile-toggle{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">Elenya — QA Studio</div>
+  <div class="sub" id="count">Chargement…</div>
+  <input class="search" id="search" placeholder="Rechercher une scène…">
+  <div class="scene-list" id="sceneList"></div>
+</aside>
+<main class="main">
+  <div class="toolbar">
+    <button id="prev">←</button><button id="next">→</button>
+    <button id="pc">PC</button><button id="mobile">Mobile</button>
+    <div class="grow"></div>
+    <strong id="scenePos">—</strong>
+    <button class="mobile-toggle" id="notesBtn">Notes</button>
+  </div>
+  <section class="stage" id="stage"><div class="empty-state">Sélectionne une scène.</div></section>
+</main>
+<aside class="inspector" id="inspector">
+  <h3>Validation</h3>
+  <div class="note-tabs">
+    <button data-type="OK">OK</button><button data-type="Texte">Texte</button><button data-type="Choix">Choix</button><button data-type="Image">Image</button><button data-type="Logique">Logique</button><button data-type="Autre">Autre</button>
+  </div>
+  <div class="status" id="status">Aucune validation.</div>
+  <textarea id="note" placeholder="Note sur cette scène…"></textarea>
+  <div class="row"><button id="save">Enregistrer</button><button id="clear">Effacer</button></div>
+  <div class="status" id="sourceInfo"></div>
+</aside>
+</div>
+<script>
+let scenes=[], filtered=[], index=0, viewport='pc', noteType='OK';
+const $=id=>document.getElementById(id);
+const key=()=>scenes[index]?'elenya_qa_'+scenes[index].id:'';
+function loadNote(){const v=JSON.parse(localStorage.getItem(key())||'null');$('note').value=v?.text||'';noteType=v?.type||'OK';document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===noteType));$('status').textContent=v?('Statut : '+v.type+' • '+new Date(v.date).toLocaleString()):'Aucune validation.'}
+function saveNote(){if(!scenes[index])return;localStorage.setItem(key(),JSON.stringify({type:noteType,text:$('note').value,date:Date.now()}));loadNote()}
+function renderList(){const q=$('search').value.toLowerCase();filtered=scenes.map((s,i)=>({...s,_i:i})).filter(s=>(s.id+' '+s.title+' '+(s.mood||'')).toLowerCase().includes(q));$('sceneList').innerHTML=filtered.map(s=>'<div class="scene '+(s._i===index?'active':'')+'" data-i="'+s._i+'"><b>'+esc(s.id)+'</b><small>'+esc(s.title)+'</small></div>').join('');document.querySelectorAll('.scene').forEach(e=>e.onclick=()=>{index=+e.dataset.i;render()});$('count').textContent=scenes.length+' scènes'}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function render(){const s=scenes[index];if(!s)return;renderList();$('scenePos').textContent=(index+1)+' / '+scenes.length+' — '+s.id;loadNote();$('sourceInfo').textContent='Source : '+s.source+' • '+(s.sceneNumber||'');const img=viewport==='mobile'?s.imageMobile:s.imagePc;const narrative=s.narrative||s.dynamicNarrative||'';const choices=(s.choices||[]).map(c=>'<div class="choice"><b>'+esc(c.key||('CHOIX '+(c.index+1)))+'</b> — '+esc(c.text)+'<div class="effects">'+esc(c.next?'→ '+c.next:'')+(c.target?' • '+c.target:'')+(c.intent?' • '+c.intent:'')+(c.effects?.length?' • '+JSON.stringify(c.effects):'')+(c.conditionError?' • condition: '+c.conditionError:'')+'</div></div>').join('');$('stage').innerHTML='<div class="media"><div class="media-bar"><span class="badge">'+viewport.toUpperCase()+'</span><span>'+esc(s.mood||'')+'</span></div>'+(img?'<img src="'+esc(img)+'" onerror="this.parentNode.innerHTML=\'<div class=empty>Image introuvable</div>\'">':'<div class="empty">Aucune image</div>')+'</div><div class="card"><h1 class="title">'+esc(s.title)+'</h1><div class="meta">'+esc(s.sceneNumber||s.id)+(s.chapter?' • Chapitre '+s.chapter:'')+'</div><div class="narrative">'+esc(narrative)+'</div></div>'+(choices?'<div class="card"><b>Choix</b>'+choices+'</div>':'');}
+$('prev').onclick=()=>{if(index>0){index--;render()}};$('next').onclick=()=>{if(index<scenes.length-1){index++;render()}};$('pc').onclick=()=>{viewport='pc';render()};$('mobile').onclick=()=>{viewport='mobile';render()};$('search').oninput=renderList;$('save').onclick=saveNote;$('clear').onclick=()=>{localStorage.removeItem(key());loadNote()};document.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{noteType=b.dataset.type;document.querySelectorAll('[data-type]').forEach(x=>x.classList.toggle('active',x===b))});$('notesBtn').onclick=()=>$('inspector').classList.toggle('open');
+fetch('/api/scenes').then(r=>r.json()).then(d=>{if(d.error)throw Error(d.error);scenes=d.scenes;render()}).catch(e=>{$('count').textContent='Erreur';$('stage').innerHTML='<div class="empty-state">'+esc(e.message)+'</div>'});
+</script>
+</body></html>

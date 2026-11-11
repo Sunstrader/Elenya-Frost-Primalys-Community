@@ -1,0 +1,331 @@
+================================================================================
+AUDIT ET REEVALUATION FACTUELLE DES 30 CHANTIERS (ELENYA V52)
+================================================================================
+Produit : ELENYA — L’Héritage de Primaëlys
+Version : 52.5.4 (V52)
+Date    : 2026-11-01
+Cadre   : Arborescence vivante elenya-refonte-52.4/project, tests elenya-refonte-52.4/qa/
+
+--------------------------------------------------------------------------------
+I. EVALUATION DETAILLEE DES 30 CHANTIERS
+--------------------------------------------------------------------------------
+
+CHANTIER 1 : Micro-réactions du triangle Kaelen / Alistair (Acte II)
+- Existence réelle : Fichiers elenya-refonte-52.4/project/DATABASE_Relations.js et DATABASE_Acte2.js existants. Scène ACTE2_06_NUIT_AUBERGE existante. Drapeaux presence_O et presence_E existants.
+- État actuel constaté : La scène ACTE2_06_NUIT_AUBERGE sépare déjà les interactions selon les présences réelles et utilise les drapeaux de report _romance_deferred_O, _romance_deferred_E, et la jauge tension_triangle.
+- Problème réellement identifié : Aucun bug technique ni blocage. La logique actuelle respecte déjà la règle : le triangle amoureux n'est pas un duel mécanique par jauge. En revanche, certaines répliques d'ambiance en soirée commune peuvent sembler neutres si le joueur alterne sans trancher.
+- Modification proposée : Raffinage localisé d'une ou deux lignes d'ambiance dans DATABASE_Relations.js uniquement si flags.includes('presence_O') && flags.includes('presence_E'), sans modifier les flags d'accès ni les jauges.
+- Risque de régression : Risque moyen de casser elenya-refonte-52.4/qa/romance.cjs qui vérifie scrupuleusement les reports de nuit et les flags _romance_deferred_*.
+- Tests nécessaires : node elenya-refonte-52.4/qa/romance.cjs et npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 2 : Variations d'échos mémoriels en New Game+ Ultra
+- Existence réelle : Fichiers 24_NGPlus_Ultra.js et DATABASE_NGPlus.js existants. Scènes NGP_09_DEUX_ECHOS et NGP_10_ORAYA existantes. Tableau originEnds existant dans l'état NG+.
+- État actuel constaté : La couche Ultra intercepte déjà les choix vers NGP_U09_* et NGP_U10_*. Le catalogue total est fixé à 307 scènes (227 classiques + 80 NG+) et 181 choix NG+.
+- Problème réellement identifié : Aucun dysfonctionnement. Ajouter de nouvelles scènes casserait l'assertion stricte de qa/check.cjs (assert.equal(r.scenes+r.ngPlusScenes, 307) et assert.equal(choices.length, 181)).
+- Modification proposée : Ne créer aucune nouvelle scène ni aucun choix. Se limiter à des variations textuelles internes (getDynamicNarrative) sans altérer la topologie du graphe.
+- Risque de régression : Critique si on touche à la topologie du graphe ; nul si purement textuel interne.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 3 : Consolidation des branches de la Voie Solo pure (Actes III et IV)
+- Existence réelle : DATABASE_Acte3.js, DATABASE_Acte4.js, DATABASE_Endings.js, scènes ACTE4_01_DEPART_VILLAGE et FIN_SOLO existantes. Flag voie_solo existant.
+- État actuel constaté : ACTE4_01_DEPART_VILLAGE filtre déjà dynamiquement le cast (stage.characters) selon la mort ou la disparition des compagnons. FIN_SOLO dispose déjà d'une assertion dédiée dans check.cjs (ligne 216 : assert(!alone.narrative.includes('Kaelen et Alistair restent dans la nef'))).
+- Problème réellement identifié : Déjà résolu et verrouillé par un test de non-régression préexistant.
+- Modification proposée : Aucune modification de code. Maintenir le test sous surveillance.
+- Risque de régression : Élevé en cas de modification superflue d'une scène déjà validée.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 4 : Choix de combat à l'Acte III
+- Existence réelle : DATABASE_Acte3.js, scène ACTE3_02_SAUVETAGE existante.
+- État actuel constaté : Les choix A et B appliquent déjà les effets ice-storm et ice-lance, et B modifie le décor vers basalt-ravine-oblique.
+- Problème réellement identifié : Le flag mentionné dans le plan précédent (contrecoup_tempete) n'existe ni dans le code ni dans FLAGS.md. Inventer ce flag violerait la cohérence de la bible.
+- Modification proposée : Abandonner l'ajout d'un flag inventé. Les effets visuels et narratifs sont déjà conformes et testés.
+- Risque de régression : Incohérence des drapeaux et rupture possible de choice-distinctness.cjs.
+- Tests nécessaires : node elenya-refonte-52.4/qa/choice-distinctness.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 5 : Refus romantique et amitié choisie
+- Existence réelle : Trophée ach_amitie_choisie existant dans Scripts_Refonte.html. DATABASE_Relations.js existant.
+- État actuel constaté : Les tests qa/bivouac-kaelen.cjs et qa/romance.cjs vérifient explicitement que le choix d'amitié ou de repos est respecté au matin, au village, dans les choix de nuit et les reports, sans pénalité.
+- Problème réellement identifié : Déjà implémenté et couvert par deux suites de tests automatisées distinctes.
+- Modification proposée : Aucune intervention nécessaire.
+- Risque de régression : Élevé si altération de la logique de relation.
+- Tests nécessaires : node elenya-refonte-52.4/qa/romance.cjs et node elenya-refonte-52.4/qa/bivouac-kaelen.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 6 : Dettes de contrebande avec Mira (Acte II)
+- Existence réelle : DATABASE_Acte2.js, sous-quêtes de Mira existantes. Drapeaux dette_mira_reconnue, contrebande_aide, et succès ach_fin_mira existants.
+- État actuel constaté : L'arc de contrebande s'enchaîne de façon fluide jusqu'à sa conclusion en Acte IV / Fin.
+- Problème réellement identifié : Le nom de flag dettes_reglees cité dans la proposition précédente était incorrect (le vrai succès est ach_fin_dette_annulee). Il n'y a pas de rupture de continuité constatée.
+- Modification proposée : Aucune modification nécessaire.
+- Risque de régression : Risque d'incohérence avec les sauvegardes existantes si un flag fantôme est injecté.
+- Tests nécessaires : npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 7 : Harmonisation des 33 fins globales et de l'Explorateur
+- Existence réelle : DATABASE_Endings.js, 50_Server_API.js (serverGetExplorer).
+- État actuel constaté : check.cjs valide rigoureusement r.scenes.filter(s=>s.end).length === 33 et ELENYA_ENDING_VIDEO_IDS_V55.length === 33.
+- Problème réellement identifié : Les 33 fins disposent déjà de leur titre, vidéo, musique et narration d'épilogue.
+- Modification proposée : Ne pas altérer la structure ni les clés des fins. Une relecture cosmétique est envisageable mais sans toucher aux métadonnées.
+- Risque de régression : Critique si un ID de fin est touché (rupture de l'Explorateur et de check.cjs).
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 8 : Cascade CSS du cadre narratif givré
+- Existence réelle : Fichiers Cinematic_UI_Landscape.html et JRPG_UI_Styles.html existants.
+- État actuel constaté : Les cadres bleus ont été neutralisés dans JRPG_UI_Styles.html (passés en border: none; background: transparent; box-shadow: none;), et Cinematic_UI_Landscape.html applique #elenya-frames-priority-fix avec des !important.
+- Problème réellement identifié : L'affichage est désormais stable et givré argenté, mais la cascade comporte des surcharges !important qui se neutralisent mutuellement.
+- Modification proposée : Nettoyage conservateur : harmoniser les sélecteurs pour alléger la feuille de style sans changer aucun pixel du rendu final validé.
+- Risque de régression : Moyen (risque de réapparition inopinée des styles bleus ou de régression responsive si un sélecteur est mal ciblé).
+- Tests nécessaires : npm run build et node elenya-refonte-52.4/qa/ux-polish.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 9 : Calibrage des zones tactiles mobiles (320px–375px)
+- Existence réelle : Styles_Game.html, JRPG_UI_Styles.html existants.
+- État actuel constaté : Breakpoints @media (max-width: 430px), 375px, 340px présents et vérifiés par ux-polish.cjs (lignes 38-52). Le layout Décision mobile dédié compresse la narration pour laisser les choix cliquables.
+- Problème réellement identifié : Déjà optimisé et validé par un test automatique spécifique.
+- Modification proposée : Ne pas modifier les media queries existantes.
+- Risque de régression : Élevé : rupture des assertions de ux-polish.cjs.
+- Tests nécessaires : node elenya-refonte-52.4/qa/ux-polish.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 10 : Repli vidéo portrait mobile (9:16)
+- Existence réelle : Scripts_Game.html (setResponsiveVideoSource, usePortraitMobileEndingVideo).
+- État actuel constaté : Déjà implémenté et testé dans check.cjs (lignes 94-109) et ux-polish.cjs (lignes 53-57). Le gestionnaire onerror bascule déjà vers la vidéo PC de secours.
+- Problème réellement identifié : Déjà résolu et testé.
+- Modification proposée : Aucune intervention.
+- Risque de régression : Élevé sur les tests de régression vidéo.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 11 : Clignement naturel du rig modulaire 2D
+- Existence réelle : Character_Modular_Runtime.html existant. Fonction elenyaNaturalBlink existante.
+- État actuel constaté : La fonction est active et épinglée sur le commit d'assets f587a9ffeebf456288f9e684d5b861fc2fc630d9, testée dans check.cjs (lignes 185-191).
+- Problème réellement identifié : Le clignement fonctionne correctement et est conforme aux directives visuelles V52.
+- Modification proposée : Ne pas modifier les timings pour éviter tout artefact visuel.
+- Risque de régression : Rupture de check.cjs et ux-polish.cjs.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 12 : Effet de givre au sol (rf-ground-frost)
+- Existence réelle : Scripts_Refonte.html, Cinematic_UI_Landscape.html existants. Classe rf-ground-frost existante.
+- État actuel constaté : L'effet s'applique déjà fidèlement selon presentation.groundFrozen sans impacter les performances.
+- Problème réellement identifié : Aucun problème. Ajouter des particules GPU supplémentaires risque de ralentir les téléphones d'entrée de gamme sans gain narratif.
+- Modification proposée : Conserver l'effet sobre actuel.
+- Risque de régression : Baisse de performance sur mobile.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 13 : Image Reviewer interne (/review-images)
+- Existence réelle : ImageReviewer.html, ImageReviewer_Backend.js, route serveur dans server.js.
+- État actuel constaté : image-reviewer.cjs valide les 157 visuels consolidés, les images du réveil, du duel et de la triangulation.
+- Problème réellement identifié : L'outil est 100 % opérationnel et sert de garde-fou.
+- Modification proposée : Ne rien modifier dans l'Image Reviewer.
+- Risque de régression : Rupture de image-reviewer.cjs.
+- Tests nécessaires : node elenya-refonte-52.4/qa/image-reviewer.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 14 : Mode Plein écran mobile
+- Existence réelle : Scripts_Game.html (toggleGameFullscreen, selectGameDisplay).
+- État actuel constaté : Le plein écran gère l'API standard requestFullscreen avec gestion des préfixes webkit et dialogue de choix initial (fullscreen / windowed).
+- Problème réellement identifié : Sur iOS Safari, requestFullscreen n'est pas supporté sur les éléments standards div (uniquement sur video). Le code gère déjà le try/catch.
+- Modification proposée : Aucun changement nécessaire.
+- Risque de régression : Faible, mais pas de gain sur les contraintes natives d'iOS.
+- Tests nécessaires : npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 15 : Affichage asymétrique des sprites
+- Existence réelle : 30_SceneManager.js (asymmetric-auto, elenyaStageAutoElenyaSide_).
+- État actuel constaté : Testé et requis par ux-polish.cjs (lignes 175-179). Elenya alterne gauche/droite de manière stable pour ne pas masquer les compagnons.
+- Problème réellement identifié : Déjà fonctionnel et verrouillé par test.
+- Modification proposée : Ne pas toucher à l'algorithme d'alternance.
+- Risque de régression : Critique sur ux-polish.cjs.
+- Tests nécessaires : node elenya-refonte-52.4/qa/ux-polish.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 16 : Audio ducking sur narration vocale
+- Existence réelle : Scripts_Refonte.html (syncAudioMix, getDuckTarget).
+- État actuel constaté : La narration vocale est désactivée par défaut (prefs.narrator = false).
+- Problème réellement identifié : Incompatible avec la consigne stricte de maintenir la narration vocale désactivée.
+- Modification proposée : Chantier annulé. La narration vocale reste en l'état, inactive.
+- Risque de régression : Risque de réactivation intempestive ou de conflit avec le mixer audio.
+- Tests nécessaires : node elenya-refonte-52.4/qa/refonte-fixes.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 17 : Fallback vocal français du navigateur
+- Existence réelle : Scripts_Refonte.html (speak, speechSynthesis).
+- État actuel constaté : La narration vocale est désactivée (prefs.narrator = false).
+- Problème réellement identifié : Incompatible avec la consigne de maintenir la voix désactivée.
+- Modification proposée : Chantier annulé.
+- Risque de régression : Risque de régression de la politique audio.
+- Tests nécessaires : npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 18 : Enchaînement et fondu BGM d'ambiance
+- Existence réelle : Scripts_Game.html (playAudioForScene, variables _currentAudioMood, _currentAudioUrl).
+- État actuel constaté : playAudioForScene possède déjà la condition : if (_currentAudioMood === mood && _currentAudioUrl) return;. La musique continue déjà sans redémarrer si le registre émotionnel ne change pas.
+- Problème réellement identifié : Déjà implémenté dans le moteur actuel.
+- Modification proposée : Aucune intervention.
+- Risque de régression : Risque de désynchronisation audio lors des cinématiques.
+- Tests nécessaires : npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 19 : Bruitage tactile procédural (SFX UI)
+- Existence réelle : Scripts_Refonte.html (effect('ui')).
+- État actuel constaté : La synthèse Web Audio via filtre passe-haut à 2600 Hz et rampe exponentielle est déjà en place.
+- Problème réellement identifié : Le son actuel est fonctionnel, discret et ne requiert pas de fichier audio externe.
+- Modification proposée : Conserver le synthétiseur procédural actuel sans modification.
+- Risque de régression : Faible, mais subjectif et inutile.
+- Tests nécessaires : node elenya-refonte-52.4/qa/client-state.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 20 : Reprise audio après masquage d'onglet
+- Existence réelle : Scripts_Game.html.
+- État actuel constaté : Les navigateurs suspendent nativement l'AudioContext en arrière-plan. Lors du retour en avant-plan, le moteur relance l'ambiance au clic ou au changement de scène.
+- Problème réellement identifié : Aucun bogue signalé par la QA.
+- Modification proposée : Ne rien modifier.
+- Risque de régression : Risque de bloquer la lecture audio lors du premier geste utilisateur.
+- Tests nécessaires : npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 21 : Fragmentation de la sauvegarde dans LocalStorage
+- Existence réelle : Scripts_Game.html (autoSave), 50_Server_API.js (serverSaveGame).
+- État actuel constaté : Le mécanisme de découpage en fragments (_chunk_) est déjà implémenté et testé dans check.cjs (lignes 326-333 : vérification que chaque fragment pèse moins de 8000 octets).
+- Problème réellement identifié : Déjà résolu et validé par un test automatisé.
+- Modification proposée : Conserver le système de chunking actuel sans altération.
+- Risque de régression : Critique : perte de compatibilité des sauvegardes existantes si la logique de sérialisation change.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 22 : Résilience sur l'import/export de sauvegardes JSON
+- Existence réelle : Scripts_Game.html (importSave, verifyBackupIntegrity).
+- État actuel constaté : client-state.cjs (lignes 30-36) teste précisément que l'import fusionne la galerie, préserve les succès permanents et refuse silencieusement les fichiers JSON corrompus sans écraser la partie en cours.
+- Problème réellement identifié : Déjà implémenté et blindé par les tests unitaires du state client.
+- Modification proposée : Aucune modification de code nécessaire.
+- Risque de régression : Critique sur client-state.cjs.
+- Tests nécessaires : node elenya-refonte-52.4/qa/client-state.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 23 : Suppression des logs verbeux en production
+- Existence réelle : server.js et les fichiers runtime.
+- État actuel constaté : Le code client ne produit pas de spam console intempestif. Les seuls logs serveurs concernent l'écoute HTTP et les erreurs bloquantes d'exécution isolée.
+- Problème réellement identifié : La console de jeu est propre.
+- Modification proposée : Aucune intervention.
+- Risque de régression : Faible.
+- Tests nécessaires : npm run lint.
+
+--------------------------------------------------------------------------------
+CHANTIER 24 : Optimisation du bundle scripts/build.js
+- Existence réelle : scripts/build.js, index.html.
+- État actuel constaté : scripts/build.js assemble V12_Jeu.html en résolvant les inclusions <?!= include(...) ?> et insère le bridge google.script.run. Le bundle pèse ~385 Ko, ce qui est très léger pour un visual novel complet.
+- Problème réellement identifié : Le fichier généré est cohérent, le build prend moins de 500 ms.
+- Modification proposée : Ne pas altérer la logique de build pour ne pas désynchroniser index.html.
+- Risque de régression : Critique sur index.html et l'ensemble de la QA.
+- Tests nécessaires : npm run build && npm run lint.
+
+--------------------------------------------------------------------------------
+CHANTIER 25 : Mécanisme de retry silencieux sur les requêtes réseau
+- Existence réelle : Bridge google.script.run dans server.js et scripts/build.js.
+- État actuel constaté : Le serveur Node local répond en quasi-instantané (< 10 ms) sur localhost:3000. Les sauvegardes sont gérées en local (localOnly: true).
+- Problème réellement identifié : Les timeouts ou pertes réseau concernaient l'ancien déploiement Google Apps Script distant, pas le serveur Node actuel.
+- Modification proposée : Ne pas alourdir le bridge avec des retries asynchrones superflus.
+- Risque de régression : Risque d'appels en double (serverProcessChoice exécuté deux fois).
+- Tests nécessaires : npm test.
+
+--------------------------------------------------------------------------------
+CHANTIER 26 : Couverture des 307 scènes contre les impasses
+- Existence réelle : elenya-refonte-52.4/qa/check.cjs (lignes 21-27).
+- État actuel constaté : Déjà implémenté et exécuté à chaque npm test via serverValidateDatabase().
+- Problème réellement identifié : Ce n'est pas un chantier à faire, c'est un test existant et obligatoire.
+- Modification proposée : Maintenir comme condition sine qua non de validation.
+- Risque de régression : Aucun.
+- Tests nécessaires : node elenya-refonte-52.4/qa/check.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 27 : Accessibilité clavier et contrastes WCAG AA
+- Existence réelle : Styles_Game.html, Cinematic_UI_Landscape.html.
+- État actuel constaté : La navigation clavier (Entrée pour continuer, raccourcis) est déjà testée dans refonte-fixes.cjs (lignes 46-50 : Continuer accessible au clavier). Le texte est rendu en #07122a sur fond givré clair, ce qui offre un contraste élevé conforme.
+- Problème réellement identifié : Déjà fonctionnel.
+- Modification proposée : Aucune intervention nécessaire.
+- Risque de régression : Faible à moyen sur les styles.
+- Tests nécessaires : node elenya-refonte-52.4/qa/refonte-fixes.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 28 : Isolation du mode QA (qaModeEnabled, qaInitAfterLoad)
+- Existence réelle : Scripts_Game.html (lignes 1493-1512).
+- État actuel constaté : qaModeEnabled() vérifie window.__QA_MODE__ ou le paramètre d'URL ?qa=1. Les appels sont sécurisés avec typeof.
+- Problème réellement identifié : Déjà résolu et stabilisé lors de la précédente intervention.
+- Modification proposée : Aucune retouche nécessaire.
+- Risque de régression : Élevé si touché (risque de réapparition de ReferenceError).
+- Tests nécessaires : npm test et validation navigateur.
+
+--------------------------------------------------------------------------------
+CHANTIER 29 : Enrichissement des tests de romance (qa/romance.cjs)
+- Existence réelle : elenya-refonte-52.4/qa/romance.cjs.
+- État actuel constaté : Le fichier teste déjà 7 scénarios majeurs (choix de nuit, amitié au matin, reports, exclusion mutuelle et préservation de l'autre route).
+- Problème réellement identifié : La couverture actuelle est excellente et bloque toute régression.
+- Modification proposée : Conserver romance.cjs intact comme arbitre de référence.
+- Risque de régression : Élevé si le test est modifié de manière non compatible.
+- Tests nécessaires : node elenya-refonte-52.4/qa/romance.cjs.
+
+--------------------------------------------------------------------------------
+CHANTIER 30 : Rapport de synthèse de build avant livraison
+- Existence réelle : scripts/lint.js et package.json.
+- État actuel constaté : npm run lint valide déjà la syntaxe de 64 fichiers (JS, CJS et scripts HTML) et l'intégrité de index.html. npm test exécute déjà les 9 suites de QA dans l'ordre canonique.
+- Problème réellement identifié : Le pipeline de vérification existe déjà dans son intégralité (npm test, npm run lint, npm run build).
+- Modification proposée : Aucune modification de script nécessaire.
+- Risque de régression : Aucun.
+- Tests nécessaires : npm run lint && npm test.
+
+--------------------------------------------------------------------------------
+II. CLASSIFICATION DES CHANTIERS
+--------------------------------------------------------------------------------
+
+CATEGORIE A : Nécessaires et Justifiés (Priorité Immédiate)
+* Aucun bogue bloquant ni rupture n'est actuellement présent sur le projet. Le code compile et les 9 suites de tests passent à 100 %. *
+- Chantier 8 (Régularisation conservatrice de la cascade CSS) : Éliminer les redondances dans Cinematic_UI_Landscape.html maintenant que JRPG_UI_Styles.html a neutralisé les cadres bleus, tout en garantissant strictement zéro variation visuelle sur les pastilles de choix et la boîte narrative.
+
+CATEGORIE B : Utiles mais Non Prioritaires (Évolutions Ciblées & Sans Risque)
+- Chantier 1 (Polissage des micro-réactions du triangle en Acte II) : Légère retouche stylistique sur les textes d'ambiance de ACTE2_06_NUIT_AUBERGE pour les cas de présence conjointe sans choix exclusif, sous réserve stricte du passage au vert de romance.cjs.
+- Chantier 2 (Micro-variations d'échos en NG+ Ultra) : Uniquement si nécessaire et strictement sous forme de branches textuelles conditionnelles (getDynamicNarrative), sans créer aucune nouvelle scène ni aucun nouveau choix (maintien absolu des 307 scènes et 181 choix).
+
+CATEGORIE C : Inutiles, Déjà Résolus ou Risqués (À Écarter / Maintenir Tels Quels)
+- Chantier 3 (Voie Solo) : Déjà résolu et testé par check.cjs.
+- Chantier 4 (Choix combat Acte III) : Déjà testé ; le flag proposé n'existe pas dans la bible.
+- Chantier 5 (Refus romantique et amitié) : Déjà résolu et couvert par bivouac-kaelen.cjs.
+- Chantier 6 (Dettes de contrebande) : Déjà fonctionnel avec les vrais flags existants.
+- Chantier 7 (33 fins globales) : Intègre et verrouillé à 33 par les tests.
+- Chantier 9 (Zones tactiles mobiles) : Déjà optimisé et testé par ux-polish.cjs.
+- Chantier 10 (Repli vidéo portrait) : Déjà opérationnel et testé.
+- Chantier 11 (Clignement 2D modulaire) : Fonctionnel et verrouillé par test.
+- Chantier 12 (Givre au sol) : Sobre et fluide ; ne pas alourdir le GPU mobile.
+- Chantier 13 (Image Reviewer) : Déjà 100 % opérationnel (157 assets vérifiés).
+- Chantier 14 (Plein écran mobile) : Limites inhérentes à WebKit iOS, code actuel propre.
+- Chantier 15 (Asymétrie des sprites) : Verrouillé et testé dans ux-polish.cjs.
+- Chantier 16 & 17 (Narration vocale & Fallback) : Interdits par la consigne de maintenir la voix désactivée.
+- Chantier 18 (BGM d'ambiance) : Le moteur vérifie déjà _currentAudioMood pour ne pas couper le son.
+- Chantier 19 & 20 (SFX procédural & Reprise audio) : Déjà implémentés et conformes.
+- Chantier 21 & 22 (Sauvegardes chunks & Résilience import) : Déjà implémentés et testés dans check.cjs et client-state.cjs.
+- Chantier 23 & 24 (Logs & Build bundle) : Déjà conformes et optimisés.
+- Chantier 25 (Retry silencieux GAS) : Inutile en environnement Node local.
+- Chantier 26 à 30 (Tests QA, accessibilité, mode QA, lint) : Déjà entièrement en place et opérationnels.
+
+--------------------------------------------------------------------------------
+III. PLAN D'EXECUTION CORRIGE ET REDUIT POUR V52
+--------------------------------------------------------------------------------
+
+1. Étape 1 : Nettoyage conservateur des styles CSS (Chantier 8)
+   - Vérifier la cascade entre JRPG_UI_Styles.html et Cinematic_UI_Landscape.html.
+   - Alléger les surcharges sans altérer la texture givrée ni la lisibilité des boutons de choix.
+   - Valider immédiatement par : npm run build && npm run lint && node elenya-refonte-52.4/qa/ux-polish.cjs.
+
+2. Étape 2 : Revue cosmétique textuelle ciblée (Chantiers 1 et 2 facultatifs)
+   - Si et seulement si souhaité : peaufiner une réplique d'ambiance en Acte II sans toucher aux structures de données.
+   - Validation stricte par : node elenya-refonte-52.4/qa/romance.cjs && node elenya-refonte-52.4/qa/check.cjs.
+
+3. Étape 3 : Règle de gel des acquis
+   - Ne pas toucher aux 33 fins, aux 307 scènes du graphe, au système de sauvegarde ni aux assets consolidés.
+   - Maintenir la narration vocale désactivée conformément à la consigne.
+================================================================================

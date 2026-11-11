@@ -1,0 +1,797 @@
+<style id="elenya-landscape-fix-v2">
+/* cadres : elenya-frames.lite en fin de fichier, images dans assets/ui/ (plus le CSS base64) */
+/* Paysage : ne pas décaler la boîte, recentrer sous l'encoche, une colonne de choix. */
+@media (orientation: landscape) {
+  body.game-live.cinema-dialogue-left .body-content,
+  body.game-live.cinema-dialogue-right .body-content {
+    transform: none !important;
+  }
+}
+
+/* Paysage mobile : le texte reste lisible, les choix ne mangent pas la scène. */
+@media (orientation: landscape) and (max-height: 560px) {
+  body.game-live .header {
+    padding-top: max(4px, env(safe-area-inset-top)) !important;
+    padding-bottom: 2px !important;
+  }
+  body.game-live .body-content,
+  body.game-live.cinema-dialogue-left .body-content,
+  body.game-live.cinema-dialogue-right .body-content,
+  body.cinema-choice-stage .body-content {
+    flex: 0 1 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: min(54dvh, 248px) !important;
+    margin: auto 0 0 !important;
+    transform: none !important;
+    justify-content: flex-end !important;
+    overflow: hidden !important;
+    gap: 4px !important;
+    padding: 8px max(12px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)) !important;
+    background: linear-gradient(to top, rgba(5,8,16,.94) 0%, rgba(5,8,16,.78) 58%, rgba(5,8,16,.28) 100%) !important;
+    border-radius: 0 !important;
+  }
+  body.game-live .narrative,
+  body.game-live #jrpg-page-ui,
+  body.game-live #cinema-speaker-name,
+  body.game-live .choices {
+    width: min(100%, 760px) !important;
+    max-width: 760px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  body.game-live .narrative,
+  body.cinema-choice-stage .narrative {
+    flex: 0 1 auto !important;
+    min-height: 0 !important;
+    max-height: min(24dvh, 108px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    background: rgba(7,11,22,.62) !important;
+    color: #f5f8ff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.85) !important;
+    font-size: calc(.96rem * var(--text-scale)) !important;
+    line-height: 1.38 !important;
+  }
+  body.game-live .choices,
+  body.game-live .choices.jrpg-ready {
+    flex: 0 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+    max-height: min(28dvh, 136px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    margin-bottom: 0 !important;
+  }
+  body.game-live .choice-btn {
+    min-height: 44px !important;
+    max-height: none !important;
+    padding: 8px 10px !important;
+    font-size: calc(.9rem * var(--text-scale)) !important;
+    line-height: 1.25 !important;
+    flex: 0 0 auto !important;
+  }
+  body.game-live .choices.jrpg-gesture-lock,
+  body.game-live .choices.jrpg-gesture-lock .choice-btn {
+    pointer-events: none !important;
+  }
+  #jrpg-choice-label { display: none !important; }
+  #aaa-hud, #scene-badge { display: none !important; }
+
+  body.game-live #rf-live,
+  body.game-live #rf-ground-label {
+    position: fixed !important;
+    z-index: 40 !important;
+    left: max(10px, env(safe-area-inset-left)) !important;
+    max-width: min(68vw, 420px) !important;
+    margin: 0 !important;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    background: rgba(6,10,20,.82) !important;
+    color: #eef6ff !important;
+    font-size: .78rem !important;
+    line-height: 1.3 !important;
+    text-shadow: none !important;
+    pointer-events: none;
+  }
+  body.game-live #rf-live { top: max(8px, env(safe-area-inset-top)) !important; }
+  body.game-live #rf-live:empty { display: none !important; }
+  body.game-live #rf-ground-label { top: max(36px, calc(env(safe-area-inset-top) + 28px)) !important; }
+}
+
+/* Vidéo : couvrir l'écran, sans cadre ni bandes du conteneur. */
+body.video-playing #scene-video,
+body.video-playing #scene-video-mp4 {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  background: #000 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform: scale(1.045);
+  z-index: 8 !important;
+}
+body.video-playing {
+  background: #000 !important;
+}
+body.video-playing::before,
+body.video-playing::after {
+  opacity: 0 !important;
+}
+body.elenya-fullscreen {
+  height: 100dvh !important;
+}
+</style>
+<script id="elenya-fullscreen-optin">
+/* Plein écran optionnel. Jamais forcé : ceux qui restent dans la page ne changent rien. */
+(function () {
+  if (window.toggleGameFullscreen) return;
+  var KEY = 'ef_fullscreen_v524';
+  function btn() { return document.getElementById('btn-fullscreen'); }
+  function active() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function paint() {
+    var b = btn();
+    if (!b) return;
+    var on = active();
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.title = on ? 'Quitter le plein écran' : 'Plein écran (optionnel)';
+    b.setAttribute('aria-label', b.title);
+    document.body.classList.toggle('elenya-fullscreen', on);
+  }
+  window.toggleGameFullscreen = function () {
+    var root = document.documentElement;
+    if (active()) {
+      var exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exit) exit.call(document);
+      try { localStorage.setItem(KEY, '0'); } catch (e) {}
+      return;
+    }
+    var req = root.requestFullscreen || root.webkitRequestFullscreen;
+    if (!req) {
+      var live = document.getElementById('rf-live');
+      if (live) live.textContent = 'Plein écran indisponible ici. Le jeu reste dans la page.';
+      return;
+    }
+    var done = req.call(root);
+    if (done && typeof done.then === 'function') {
+      done.then(function () {
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        paint();
+      }).catch(function () {
+        try { localStorage.setItem(KEY, '0'); } catch (e) {}
+      });
+    } else {
+      try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    }
+  };
+  document.addEventListener('fullscreenchange', paint);
+  document.addEventListener('webkitfullscreenchange', paint);
+  document.addEventListener('DOMContentLoaded', paint);
+})();
+</script>
+
+<style id="elenya-landscape-menu-v1">
+#btn-landscape-menu {
+  display: none;
+  position: fixed;
+  z-index: 90;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(190,215,255,.28);
+  background: rgba(8,12,24,.82);
+  color: #eef5ff;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+@media (orientation: landscape) and (max-height: 640px) {
+  #btn-landscape-menu { display: grid; place-items: center; }
+  body.game-live > .footer {
+    position: fixed !important;
+    top: max(8px, env(safe-area-inset-top)) !important;
+    right: max(52px, calc(env(safe-area-inset-right) + 52px)) !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 89 !important;
+    width: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    pointer-events: none;
+  }
+  body.game-live .game-control-dock {
+    display: none !important;
+    position: absolute;
+    top: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 168px;
+    padding: 8px;
+    pointer-events: auto;
+  }
+  body.game-live.landscape-menu-open .game-control-dock {
+    display: flex !important;
+  }
+  body.game-live.landscape-menu-open .game-dock-separator { display: none; }
+  body.game-live .body-content,
+  body.game-live.cinema-dialogue-left .body-content,
+  body.game-live.cinema-dialogue-right .body-content,
+  body.cinema-choice-stage .body-content {
+    max-height: min(62dvh, 280px) !important;
+    padding-bottom: 8px !important;
+  }
+  body.game-live .choices,
+  body.game-live .choices.jrpg-ready {
+    max-height: min(34dvh, 168px) !important;
+  }
+}
+</style>
+
+<style id="elenya-menu-unified-v1">
+body.video-playing #btn-landscape-menu,
+body.video-playing > .footer,
+body.video-playing #game-quick-menu,
+body.video-playing #jrpg-next {
+  display: none !important;
+}
+#btn-landscape-menu { display: none; }
+@media (orientation: landscape) and (max-height: 640px) {
+  #btn-landscape-menu { display: grid; place-items: center; }
+  body.game-live > .footer { display: none !important; }
+  body.game-live.landscape-menu-open .game-control-dock { display: none !important; }
+  #game-quick-menu.show {
+    top: max(54px, calc(env(safe-area-inset-top) + 48px)) !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: min(420px, calc(100vw - 20px)) !important;
+    max-height: min(78dvh, 420px) !important;
+  }
+}
+.game-quick-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0;
+}
+.game-quick-tools button {
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(180,205,245,.2);
+  background: rgba(12,18,34,.72);
+  color: #eef4ff;
+  font: 600 .78rem/1.2 Cinzel, serif;
+}
+#launch-fs-on.is-selected, #launch-fs-off.is-selected, #narration-start-yes.is-selected, #narration-start-no.is-selected {
+  background: #305579 !important;
+  border-color: #d7e7ff !important;
+}
+.launch-kicker {
+  margin: .9rem 0 .4rem !important;
+  font: 600 .72rem/1 Cinzel, serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #c9d8ee;
+}
+#jrpg-next.ready {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(210,226,255,.35);
+  background: rgba(8,14,28,.82);
+  color: #f4f8ff;
+  font: 600 .72rem/1 Cinzel, serif;
+  letter-spacing: .08em;
+}
+</style>
+
+
+
+<style id="elenya-frames-v1">
+/* Ancien collage base64 retiré : il doublonnait le cadre et sortait du menu. Le lite est en fin de fichier. */
+</style>
+
+
+
+<style id="elenya-pc-launch-v1">
+#launch-confirm {
+  display: block;
+  margin: .8rem auto 0;
+  min-width: 180px;
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid #d7e7ff;
+  background: #305579;
+  color: #f4f8ff;
+  font: 600 .9rem/1 Cinzel, serif;
+}
+body.game-live > .footer,
+body.game-live .game-control-dock { display: none !important; }
+#btn-landscape-menu { display: grid !important; place-items: center; }
+body.video-playing #btn-landscape-menu { display: none !important; }
+@media (min-width: 901px) {
+  body.game-live .body-content {
+    margin-top: auto !important;
+    margin-bottom: 28px !important;
+    width: min(920px, calc(100% - 48px)) !important;
+    align-self: center !important;
+  }
+  body.game-live .narrative { text-align: center !important; }
+}
+</style>
+
+
+
+
+
+<style id="elenya-menu-frame-v2">
+#game-quick-menu {
+  position: fixed !important;
+  top: max(52px, calc(env(safe-area-inset-top) + 48px)) !important;
+  right: max(10px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: min(400px, calc(100vw - 28px)) !important;
+  max-height: min(68dvh, 520px) !important;
+  overflow: auto !important;
+  z-index: 1700 !important;
+  margin: 0 !important;
+}
+#game-quick-menu:not(.show) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+</style>
+
+
+<style id="elenya-menu-frame-v3">
+#game-quick-menu.show {
+  position: fixed !important;
+  top: max(56px, calc(env(safe-area-inset-top) + 50px)) !important;
+  right: max(12px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: min(380px, calc(100vw - 28px)) !important;
+  max-height: min(62dvh, 480px) !important;
+  margin: 0 !important;
+  padding: 28px 22px 22px !important;
+  overflow: auto !important;
+  z-index: 1700 !important;
+  box-sizing: border-box !important;
+}
+/* inset du cadre : laissé au CSS fini */
+body.game-live .narrative {
+  text-align: left !important;
+}
+#rf-live { display: none !important; }
+</style>
+
+
+<style id="elenya-voice-hover-v1">
+#top-menu-cluster {
+  position: fixed;
+  z-index: 90;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#btn-landscape-menu { position: static !important; top: auto !important; right: auto !important; }
+#btn-voice-hover {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(210,226,255,.45);
+  background: rgba(8,14,28,.82);
+  color: #f4f8ff;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+#top-menu-cluster:hover #btn-voice-hover,
+#top-menu-cluster:focus-within #btn-voice-hover,
+#btn-voice-hover.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: none) {
+  #btn-voice-hover { opacity: 1; pointer-events: auto; }
+}
+</style>
+
+<style id="elenya-frames-lite">
+/* =====================================================================
+   ELENYA — cadres givrés à filigrane peint (récit · choix · menu · bouton menu)
+   À coller À LA FIN du <style> de Cinematic_UI_Landscape.html (après JRPG_UI_Styles.html).
+   Cibles : body.game-live .narrative · body.game-live .choice-btn ·
+            #game-quick-menu · #btn-landscape-menu
+   Le filigrane du récit, des choix et du menu est DÉCOUPÉ dans les maquettes (WebP à alpha) :
+   pièces à taille fixe (jamais étirées), seuls les filets de bord se répètent, découpés
+   par clip-path autour des coins et ornements. Échelle : variable --k sur chaque élément.
+   Ne définit ni display, ni visibility, ni position sur les 4 cibles
+   (sauf les pseudo-éléments ::before/::after, absolus, pointer-events:none).
+   ===================================================================== */
+:root {
+  --fx-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  --fx-frame-button: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cdefs%3E%3ClinearGradient id='ag' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='100' y2='100'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.32' stop-color='%23e4ecf8'/%3E%3Cstop offset='.68' stop-color='%23a7b7d0'/%3E%3Cstop offset='1' stop-color='%23f3f7fc'/%3E%3C/linearGradient%3E%3ClinearGradient id='gem' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='100' y2='100'%3E%3Cstop offset='0' stop-color='%23f6fbff'/%3E%3Cstop offset='.5' stop-color='%239cc2ee'/%3E%3Cstop offset='1' stop-color='%234d7dbd'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='7' y='7' width='86' height='86' rx='7' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='5' transform='translate(1 1.2)'/%3E%3Crect x='7' y='7' width='86' height='86' rx='7' fill='none' stroke='url(%23ag)' stroke-width='3.6'/%3E%3Crect x='14' y='14' width='72' height='72' rx='4' fill='none' stroke='url(%23ag)' stroke-width='1.1' stroke-opacity='.85'/%3E%3Cg transform='translate(0 0) scale(1 1)'%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 3 L17 10 L10 17 L3 10 Z' fill='url(%23gem)' fill-opacity='.9' stroke='url(%23ag)' stroke-width='1.1'/%3E%3C/g%3E%3Cg transform='translate(100 0) scale(-1 1)'%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 3 L17 10 L10 17 L3 10 Z' fill='url(%23gem)' fill-opacity='.9' stroke='url(%23ag)' stroke-width='1.1'/%3E%3C/g%3E%3Cg transform='translate(0 100) scale(1 -1)'%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 3 L17 10 L10 17 L3 10 Z' fill='url(%23gem)' fill-opacity='.9' stroke='url(%23ag)' stroke-width='1.1'/%3E%3C/g%3E%3Cg transform='translate(100 100) scale(-1 -1)'%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 22 18 30 14 34 8' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='%2326344f' stroke-opacity='.5' stroke-width='2.4000000000000004' stroke-linecap='round' stroke-linejoin='round' transform='translate(1 1.2)'/%3E%3Cpath d='M 10 10 C 18 22 14 30 8 34' fill='none' stroke='url(%23ag)' stroke-opacity='1.0' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 3 L17 10 L10 17 L3 10 Z' fill='url(%23gem)' fill-opacity='.9' stroke='url(%23ag)' stroke-width='1.1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ---------- RÉCIT : bandeau de verre givré (filigrane découpé dans la maquette) ---------- */
+:root {
+  --rn-tl: url("/project/assets/ui/rn-tl.webp");
+  --rn-bl: url("/project/assets/ui/rn-bl.webp");
+  --rn-tr: url("/project/assets/ui/rn-tr.webp");
+  --rn-br: url("/project/assets/ui/rn-br.webp");
+  --rn-gem-l: url("/project/assets/ui/rn-gem-l.webp");
+  --rn-gem-r: url("/project/assets/ui/rn-gem-r.webp");
+  --rn-star-l: url("/project/assets/ui/rn-star-l.webp");
+  --rn-star-r: url("/project/assets/ui/rn-star-r.webp");
+  --rn-top: url("/project/assets/ui/rn-top.webp");
+  --rn-bottom: url("/project/assets/ui/rn-bottom.webp");
+  --rn-edge-l: url("/project/assets/ui/rn-edge-l.webp");
+  --rn-edge-r: url("/project/assets/ui/rn-edge-r.webp");
+  --rn-edge-t: url("/project/assets/ui/rn-edge-t.webp");
+  --rn-edge-b: url("/project/assets/ui/rn-edge-b.webp");
+}
+body.game-live .narrative {
+  --k: clamp(.4px, .14vmin, 1px);          /* 1 px de maquette = --k ; règle l'échelle de tout le cadre */
+  border: 0; border-radius: 0;
+  background-color: transparent;
+  background-image:
+    var(--fx-noise),
+    radial-gradient(70% 160% at 50% 50%, rgba(216,228,244,.58), rgba(176,193,219,.46) 58%, rgba(112,130,165,.40)),
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 40%);
+  background-size: 160px 160px, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  -webkit-backdrop-filter: blur(4px) saturate(1.2) brightness(1.1);
+          backdrop-filter: blur(4px) saturate(1.2) brightness(1.1);
+  box-shadow: inset 0 0 calc(var(--k) * 30) rgba(255,255,255,.20), 0 calc(var(--k) * 12) calc(var(--k) * 34) rgba(3,10,28,.45);
+  color: #07122a; text-align: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,.38);
+}
+body.game-live .narrative::before, body.game-live .narrative::after {
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(var(--k) * -36);
+  background-repeat: no-repeat;
+}
+body.game-live .narrative::before {
+  z-index: 3;
+  background-image: var(--rn-tl), var(--rn-tr), var(--rn-bl), var(--rn-br), var(--rn-gem-l), var(--rn-gem-r), var(--rn-star-l), var(--rn-star-r), var(--rn-top), var(--rn-bottom);
+  background-size:
+    calc(var(--k) * 200) calc(var(--k) * 76),
+    calc(var(--k) * 212) calc(var(--k) * 76),
+    calc(var(--k) * 200) calc(var(--k) * 75),
+    calc(var(--k) * 212) calc(var(--k) * 75),
+    calc(var(--k) * 72) calc(var(--k) * 36),
+    calc(var(--k) * 60) calc(var(--k) * 36),
+    calc(var(--k) * 60) calc(var(--k) * 52),
+    calc(var(--k) * 58) calc(var(--k) * 52),
+    calc(var(--k) * 88) calc(var(--k) * 32),
+    calc(var(--k) * 88) calc(var(--k) * 31);
+  background-position:
+    left calc(var(--k) * 22) top calc(var(--k) * 20.5),
+    right calc(var(--k) * 2) top calc(var(--k) * 20.5),
+    left calc(var(--k) * 22) bottom calc(var(--k) * 22),
+    right calc(var(--k) * 2) bottom calc(var(--k) * 22),
+    left calc(var(--k) * 4) top calc(50% + calc(var(--k) * -0.25)),
+    right calc(var(--k) * 0) top calc(50% + calc(var(--k) * -0.25)),
+    left calc(var(--k) * 78) top calc(50% + calc(var(--k) * -0.25)),
+    right calc(var(--k) * 76) top calc(50% + calc(var(--k) * -0.25)),
+    calc(50% + calc(var(--k) * 6)) calc(var(--k) * 22.5),
+    calc(50% + calc(var(--k) * 6)) calc(100% - calc(var(--k) * 22));
+}
+body.game-live .narrative::after {
+  z-index: 2;
+  background-image: var(--rn-edge-l), var(--rn-edge-r), var(--rn-edge-t), var(--rn-edge-b);
+  background-size: calc(var(--k) * 12) calc(var(--k) * 8), calc(var(--k) * 12) calc(var(--k) * 8), calc(var(--k) * 8) calc(var(--k) * 16), calc(var(--k) * 8) calc(var(--k) * 16);
+  background-repeat: repeat-y, repeat-y, repeat-x, repeat-x;
+  background-position: left calc(var(--k) * 33) top 0, right calc(var(--k) * 33) top 0, left 0 top calc(var(--k) * 30.5), left 0 bottom calc(var(--k) * 31);
+  -webkit-clip-path: polygon(min(calc(var(--k) * 222), 50%) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 0, max(calc(100% - calc(var(--k) * 214)), 50%) 0, max(calc(100% - calc(var(--k) * 214)), 50%) calc(var(--k) * 96.5), 100% calc(var(--k) * 96.5), 100% max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 100%, min(calc(var(--k) * 222), 50%) 100%, min(calc(var(--k) * 222), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 min(calc(var(--k) * 96.5), 50%), min(calc(var(--k) * 222), 50%) min(calc(var(--k) * 96.5), 50%));
+          clip-path: polygon(min(calc(var(--k) * 222), 50%) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 0, max(calc(100% - calc(var(--k) * 214)), 50%) 0, max(calc(100% - calc(var(--k) * 214)), 50%) calc(var(--k) * 96.5), 100% calc(var(--k) * 96.5), 100% max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 100%, min(calc(var(--k) * 222), 50%) 100%, min(calc(var(--k) * 222), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 min(calc(var(--k) * 96.5), 50%), min(calc(var(--k) * 222), 50%) min(calc(var(--k) * 96.5), 50%));
+}
+
+
+/* ---------- CHOIX : pastilles au même filigrane, angles arrondis ---------- */
+:root {
+  --ch-tl: url("/project/assets/ui/ch-tl.webp");
+  --ch-bl: url("/project/assets/ui/ch-bl.webp");
+  --ch-tr: url("/project/assets/ui/ch-tr.webp");
+  --ch-br: url("/project/assets/ui/ch-br.webp");
+  --ch-gem-l: url("/project/assets/ui/ch-gem-l.webp");
+  --ch-gem-r: url("/project/assets/ui/ch-gem-r.webp");
+  --ch-top: url("/project/assets/ui/ch-top.webp");
+  --ch-bottom: url("/project/assets/ui/ch-bottom.webp");
+  --ch-edge-l: url("/project/assets/ui/ch-edge-l.webp");
+  --ch-edge-r: url("/project/assets/ui/ch-edge-r.webp");
+  --ch-edge-t: url("/project/assets/ui/ch-edge-t.webp");
+  --ch-edge-b: url("/project/assets/ui/ch-edge-b.webp");
+}
+body.game-live .choice-btn {
+  --k: clamp(.45px, .15vmin, 1px);
+  border: 0; border-radius: calc(var(--k) * 20);
+  background-color: transparent;
+  background-image:
+    var(--fx-noise),
+    radial-gradient(80% 140% at 50% 40%, rgba(214,225,240,.55), rgba(214,225,240,0) 70%),
+    linear-gradient(180deg, rgba(196,210,230,.60), rgba(166,183,209,.62));
+  background-size: 160px 160px, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  -webkit-backdrop-filter: blur(4px) saturate(1.2) brightness(1.1);
+          backdrop-filter: blur(4px) saturate(1.2) brightness(1.1);
+  box-shadow: inset 0 0 calc(var(--k) * 16) rgba(255,255,255,.32), 0 calc(var(--k) * 8) calc(var(--k) * 22) rgba(3,10,28,.42);
+  color: #06142c; text-align: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,.42);
+  -webkit-tap-highlight-color: transparent;
+}
+body.game-live .choice-btn::before, body.game-live .choice-btn::after {
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(var(--k) * -26);
+  background-repeat: no-repeat;
+}
+body.game-live .choice-btn::before {
+  z-index: 3;
+  background-image: var(--ch-tl), var(--ch-tr), var(--ch-bl), var(--ch-br), var(--ch-gem-l), var(--ch-gem-r), var(--ch-top), var(--ch-bottom);
+  background-size:
+    calc(var(--k) * 120) calc(var(--k) * 38),
+    calc(var(--k) * 126) calc(var(--k) * 38),
+    calc(var(--k) * 120) calc(var(--k) * 31),
+    calc(var(--k) * 126) calc(var(--k) * 31),
+    calc(var(--k) * 48) calc(var(--k) * 38),
+    calc(var(--k) * 46) calc(var(--k) * 38),
+    calc(var(--k) * 46) calc(var(--k) * 27),
+    calc(var(--k) * 46) calc(var(--k) * 24);
+  background-position:
+    left calc(var(--k) * 17.5) top calc(var(--k) * 16.5),
+    right calc(var(--k) * 12) top calc(var(--k) * 16.5),
+    left calc(var(--k) * 17.5) bottom calc(var(--k) * 14),
+    right calc(var(--k) * 12) bottom calc(var(--k) * 14),
+    left calc(var(--k) * 7.5) top calc(50% + calc(var(--k) * 4.75)),
+    right calc(var(--k) * 8) top calc(50% + calc(var(--k) * 4.75)),
+    calc(50% + calc(var(--k) * 0.75)) calc(var(--k) * 11.5),
+    calc(50% + calc(var(--k) * 0.75)) calc(100% - calc(var(--k) * 13));
+}
+body.game-live .choice-btn::after {
+  z-index: 2;
+  background-image: var(--ch-edge-l), var(--ch-edge-r), var(--ch-edge-t), var(--ch-edge-b);
+  background-size: calc(var(--k) * 20) calc(var(--k) * 8), calc(var(--k) * 22) calc(var(--k) * 8), calc(var(--k) * 8) calc(var(--k) * 18), calc(var(--k) * 8) calc(var(--k) * 18);
+  background-repeat: repeat-y, repeat-y, repeat-x, repeat-x;
+  background-position: left calc(var(--k) * 17.5) top 0, right calc(var(--k) * 16) top 0, left 0 top calc(var(--k) * 18.5), left 0 bottom calc(var(--k) * 17);
+  -webkit-clip-path: polygon(min(calc(var(--k) * 137.5), 50%) 0, max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) 0, max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) calc(var(--k) * 38.5), max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) calc(var(--k) * 38.5), max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) 0, max(calc(100% - calc(var(--k) * 138)), 50%) 0, max(calc(100% - calc(var(--k) * 138)), 50%) calc(var(--k) * 54.5), 100% calc(var(--k) * 54.5), 100% max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), calc(100% - calc(var(--k) * 54)) max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), calc(100% - calc(var(--k) * 54)) max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), 100% max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), 100% max(calc(100% - calc(var(--k) * 45)), 50%), max(calc(100% - calc(var(--k) * 138)), 50%) max(calc(100% - calc(var(--k) * 45)), 50%), max(calc(100% - calc(var(--k) * 138)), 50%) 100%, max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) 100%, max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) calc(100% - calc(var(--k) * 37)), max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) calc(100% - calc(var(--k) * 37)), max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) 100%, min(calc(var(--k) * 137.5), 50%) 100%, min(calc(var(--k) * 137.5), 50%) max(calc(100% - calc(var(--k) * 45)), 50%), 0 max(calc(100% - calc(var(--k) * 45)), 50%), 0 max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), calc(var(--k) * 55.5) max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), calc(var(--k) * 55.5) max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), 0 max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), 0 min(calc(var(--k) * 54.5), 50%), min(calc(var(--k) * 137.5), 50%) min(calc(var(--k) * 54.5), 50%));
+          clip-path: polygon(min(calc(var(--k) * 137.5), 50%) 0, max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) 0, max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) calc(var(--k) * 38.5), max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) calc(var(--k) * 38.5), max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) 0, max(calc(100% - calc(var(--k) * 138)), 50%) 0, max(calc(100% - calc(var(--k) * 138)), 50%) calc(var(--k) * 54.5), 100% calc(var(--k) * 54.5), 100% max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), calc(100% - calc(var(--k) * 54)) max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), calc(100% - calc(var(--k) * 54)) max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), 100% max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), 100% max(calc(100% - calc(var(--k) * 45)), 50%), max(calc(100% - calc(var(--k) * 138)), 50%) max(calc(100% - calc(var(--k) * 45)), 50%), max(calc(100% - calc(var(--k) * 138)), 50%) 100%, max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) 100%, max(max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))), min(max(calc(100% - calc(var(--k) * 138)), 50%), calc(50% + calc(var(--k) * 0.75) + calc(var(--k) * 23)))) calc(100% - calc(var(--k) * 37)), max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) calc(100% - calc(var(--k) * 37)), max(min(calc(var(--k) * 137.5), 50%), calc(50% + calc(var(--k) * 0.75) - calc(var(--k) * 23))) 100%, min(calc(var(--k) * 137.5), 50%) 100%, min(calc(var(--k) * 137.5), 50%) max(calc(100% - calc(var(--k) * 45)), 50%), 0 max(calc(100% - calc(var(--k) * 45)), 50%), 0 max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), calc(var(--k) * 55.5) max(max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), min(max(calc(100% - calc(var(--k) * 45)), 50%), calc(50% + calc(var(--k) * 4.75) + calc(var(--k) * 19)))), calc(var(--k) * 55.5) max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), 0 max(min(calc(var(--k) * 54.5), 50%), calc(50% + calc(var(--k) * 4.75) - calc(var(--k) * 19))), 0 min(calc(var(--k) * 54.5), 50%), min(calc(var(--k) * 137.5), 50%) min(calc(var(--k) * 54.5), 50%));
+}
+body.game-live .choice-btn:active { filter: brightness(1.07); }
+
+
+/* ---------- MENU : panneau de verre givré, filigrane découpé dans la maquette ---------- */
+:root {
+  --mn-corner-tl: url("/project/assets/ui/mn-corner-tl.webp");
+  --mn-corner-tr: url("/project/assets/ui/mn-corner-tr.webp");
+  --mn-corner-bl: url("/project/assets/ui/mn-corner-bl.webp");
+  --mn-corner-br: url("/project/assets/ui/mn-corner-br.webp");
+  --mn-top-center: url("/project/assets/ui/mn-top-center.webp");
+  --mn-bottom-center: url("/project/assets/ui/mn-bottom-center.webp");
+  --mn-divider: url("/project/assets/ui/mn-divider.webp");
+  --mn-flake-tl: url("/project/assets/ui/mn-flake-tl.webp");
+  --mn-flake-bl: url("/project/assets/ui/mn-flake-bl.webp");
+  --mn-flake-br: url("/project/assets/ui/mn-flake-br.webp");
+  --mn-sparkle: url("/project/assets/ui/mn-sparkle.webp");
+  --mn-edge-l: url("/project/assets/ui/mn-edge-l.webp");
+  --mn-edge-r: url("/project/assets/ui/mn-edge-r.webp");
+  --mn-edge-t: url("/project/assets/ui/mn-edge-t.webp");
+  --mn-edge-b: url("/project/assets/ui/mn-edge-b.webp");
+  --mn-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Ccircle cx='154.2' cy='189.8' r='1.2' fill='white' fill-opacity='0.62'/%3E%3Ccircle cx='287.9' cy='67.0' r='1.6' fill='white' fill-opacity='0.64'/%3E%3Ccircle cx='207.8' cy='65.8' r='1.2' fill='white' fill-opacity='0.53'/%3E%3Ccircle cx='34.1' cy='272.8' r='0.7' fill='white' fill-opacity='0.71'/%3E%3Ccircle cx='135.5' cy='154.4' r='1.6' fill='white' fill-opacity='0.74'/%3E%3Ccircle cx='210.9' cy='280.1' r='0.7' fill='white' fill-opacity='0.39'/%3E%3Ccircle cx='67.1' cy='84.3' r='0.7' fill='white' fill-opacity='0.82'/%3E%3Ccircle cx='112.3' cy='200.2' r='0.8' fill='white' fill-opacity='0.66'/%3E%3Ccircle cx='216.6' cy='169.9' r='0.7' fill='white' fill-opacity='0.62'/%3E%3Ccircle cx='96.4' cy='335.2' r='0.7' fill='white' fill-opacity='0.77'/%3E%3Ccircle cx='108.7' cy='80.2' r='1.0' fill='white' fill-opacity='0.37'/%3E%3Ccircle cx='191.0' cy='39.8' r='0.7' fill='white' fill-opacity='0.86'/%3E%3Ccircle cx='132.3' cy='322.1' r='0.7' fill='white' fill-opacity='0.48'/%3E%3Ccircle cx='311.8' cy='21.4' r='1.2' fill='white' fill-opacity='0.94'/%3E%3Ccircle cx='135.9' cy='28.2' r='0.8' fill='white' fill-opacity='0.82'/%3E%3Ccircle cx='93.6' cy='32.9' r='1.0' fill='white' fill-opacity='0.36'/%3E%3Ccircle cx='140.1' cy='310.4' r='0.8' fill='white' fill-opacity='0.50'/%3E%3Ccircle cx='37.5' cy='23.9' r='1.2' fill='white' fill-opacity='0.46'/%3E%3Ccircle cx='189.7' cy='152.5' r='0.8' fill='white' fill-opacity='0.94'/%3E%3Ccircle cx='259.5' cy='143.2' r='1.2' fill='white' fill-opacity='0.42'/%3E%3Ccircle cx='143.7' cy='74.7' r='1.0' fill='white' fill-opacity='0.87'/%3E%3Ccircle cx='327.7' cy='200.8' r='0.7' fill='white' fill-opacity='0.48'/%3E%3Ccircle cx='134.9' cy='287.7' r='1.6' fill='white' fill-opacity='0.41'/%3E%3Ccircle cx='332.4' cy='74.8' r='1.0' fill='white' fill-opacity='0.36'/%3E%3Ccircle cx='206.6' cy='279.7' r='1.2' fill='white' fill-opacity='0.39'/%3E%3Ccircle cx='33.9' cy='197.5' r='0.8' fill='white' fill-opacity='0.36'/%3E%3Ccircle cx='126.4' cy='210.6' r='0.8' fill='white' fill-opacity='0.93'/%3E%3Ccircle cx='164.6' cy='194.8' r='1.2' fill='white' fill-opacity='0.46'/%3E%3Ccircle cx='55.2' cy='305.6' r='1.6' fill='white' fill-opacity='0.50'/%3E%3Ccircle cx='67.0' cy='249.5' r='1.6' fill='white' fill-opacity='0.47'/%3E%3Ccircle cx='319.4' cy='296.9' r='1.6' fill='white' fill-opacity='0.40'/%3E%3Ccircle cx='19.7' cy='40.2' r='1.6' fill='white' fill-opacity='0.93'/%3E%3Ccircle cx='83.2' cy='237.9' r='1.0' fill='white' fill-opacity='0.60'/%3E%3Ccircle cx='304.4' cy='167.0' r='1.6' fill='white' fill-opacity='0.46'/%3E%3Cpath d='M239.6 28.7V38.7M234.6 33.7H244.6' stroke='white' stroke-opacity='.8' stroke-width='.7'/%3E%3C/svg%3E");
+}
+#game-quick-menu {
+  --k: clamp(.5px, .19vmin, 1.1px);        /* 1 px de maquette = --k ; règle l'échelle de tout le cadre */
+  border: 0; border-radius: 0;
+  background-color: transparent;
+  background-image:
+    var(--mn-stars),
+    var(--fx-noise),
+    radial-gradient(90% 55% at 50% 0%, rgba(255,255,255,.20), rgba(255,255,255,0) 70%),
+    linear-gradient(180deg, rgba(126,146,188,.60), rgba(104,124,168,.66));
+  background-size: 340px 340px, 160px 160px, auto, auto;
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
+  -webkit-backdrop-filter: blur(5px) saturate(1.2) brightness(.86);
+          backdrop-filter: blur(5px) saturate(1.2) brightness(.86);
+  box-shadow: inset 0 0 calc(var(--k) * 40) rgba(255,255,255,.12), 0 calc(var(--k) * 14) calc(var(--k) * 40) rgba(3,10,28,.5);
+  color: #fff; text-align: center;
+  text-shadow: 0 0 1px rgba(40,56,100,.95), 0 1px 2px rgba(34,48,92,.9), 0 calc(var(--k) * 3) calc(var(--k) * 9) rgba(22,36,78,.55);
+  letter-spacing: .035em;
+}
+#game-quick-menu::before, #game-quick-menu::after {
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(var(--k) * -48);
+  background-repeat: no-repeat;
+}
+#game-quick-menu::before {
+  z-index: 3;
+  background-image: var(--mn-corner-tl), var(--mn-corner-tr), var(--mn-corner-bl), var(--mn-corner-br), var(--mn-flake-tl), var(--mn-flake-bl), var(--mn-flake-br), var(--mn-sparkle), var(--mn-top-center), var(--mn-bottom-center);
+  background-size:
+    calc(var(--k) * 114) calc(var(--k) * 120),
+    calc(var(--k) * 120) calc(var(--k) * 120),
+    calc(var(--k) * 116) calc(var(--k) * 106),
+    calc(var(--k) * 120) calc(var(--k) * 106),
+    calc(var(--k) * 40) calc(var(--k) * 42),
+    calc(var(--k) * 60) calc(var(--k) * 64),
+    calc(var(--k) * 54) calc(var(--k) * 56),
+    calc(var(--k) * 22) calc(var(--k) * 22),
+    calc(var(--k) * 164) calc(var(--k) * 70),
+    calc(var(--k) * 98) calc(var(--k) * 34);
+  background-position:
+    left calc(var(--k) * 34) top calc(var(--k) * 35),
+    right calc(var(--k) * 30.5) top calc(var(--k) * 35),
+    left calc(var(--k) * 34) bottom calc(var(--k) * 38.5),
+    right calc(var(--k) * 28.5) bottom calc(var(--k) * 38.5),
+    left calc(var(--k) * 76) top calc(var(--k) * 71),
+    left calc(var(--k) * 64) bottom calc(var(--k) * 70.5),
+    right calc(var(--k) * 68.5) bottom calc(var(--k) * 62.5),
+    right calc(var(--k) * 100.5) top calc(var(--k) * 75),
+    calc(50% + calc(var(--k) * -1.25)) calc(var(--k) * 3),
+    calc(50% + calc(var(--k) * -2.25)) calc(100% - calc(var(--k) * 38.5));
+}
+#game-quick-menu::after {
+  z-index: 2;
+  background-image: var(--mn-edge-l), var(--mn-edge-r), var(--mn-edge-t), var(--mn-edge-b);
+  background-size: calc(var(--k) * 13) calc(var(--k) * 8), calc(var(--k) * 15) calc(var(--k) * 8), calc(var(--k) * 8) calc(var(--k) * 20), calc(var(--k) * 8) calc(var(--k) * 18);
+  background-repeat: repeat-y, repeat-y, repeat-x, repeat-x;
+  background-position:
+    left calc(var(--k) * 45) top 0, right calc(var(--k) * 42.5) top 0,
+    left 0 top calc(var(--k) * 43), left 0 bottom calc(var(--k) * 40.5);
+  -webkit-clip-path: polygon(calc(var(--k) * 148) 0, calc(50% - calc(var(--k) * 82)) 0, calc(50% - calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) 0, calc(100% - calc(var(--k) * 150.5)) 0, calc(100% - calc(var(--k) * 150.5)) calc(var(--k) * 155), 100% calc(var(--k) * 155), 100% calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) 100%, calc(50% + calc(var(--k) * 49)) 100%, calc(50% + calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) 100%, calc(var(--k) * 150) 100%, calc(var(--k) * 150) calc(100% - calc(var(--k) * 144.5)), 0 calc(100% - calc(var(--k) * 144.5)), 0 calc(var(--k) * 155), calc(var(--k) * 148) calc(var(--k) * 155));
+          clip-path: polygon(calc(var(--k) * 148) 0, calc(50% - calc(var(--k) * 82)) 0, calc(50% - calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) calc(var(--k) * 73), calc(50% + calc(var(--k) * 82)) 0, calc(100% - calc(var(--k) * 150.5)) 0, calc(100% - calc(var(--k) * 150.5)) calc(var(--k) * 155), 100% calc(var(--k) * 155), 100% calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) calc(100% - calc(var(--k) * 144.5)), calc(100% - calc(var(--k) * 148.5)) 100%, calc(50% + calc(var(--k) * 49)) 100%, calc(50% + calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) calc(100% - calc(var(--k) * 72.5)), calc(50% - calc(var(--k) * 49)) 100%, calc(var(--k) * 150) 100%, calc(var(--k) * 150) calc(100% - calc(var(--k) * 144.5)), 0 calc(100% - calc(var(--k) * 144.5)), 0 calc(var(--k) * 155), calc(var(--k) * 148) calc(var(--k) * 155));
+}
+/* texte net ; séparateur (losange) OPT-IN : ajouter la classe .ice-sep sur les lignes voulues (background-image seul => le fond au survol n'est pas écrasé) */
+#game-quick-menu > :is(button, a, li, [role="menuitem"]) {
+  color: inherit; font-weight: 500; letter-spacing: inherit; text-shadow: inherit;
+}
+/* Si le contenu du menu déborde du cadre, réduire le contenu (pas le cadre) ou décommenter : */
+/* #game-quick-menu { box-sizing: border-box; padding: calc(var(--k) * 50) calc(var(--k) * 40); } */
+#game-quick-menu .ice-sep {
+  padding-bottom: calc(var(--k) * 16);
+  background-image: var(--mn-divider);
+  background-repeat: no-repeat;
+  background-size: calc(var(--k) * 128) calc(var(--k) * 24);
+  background-position: center bottom;
+}
+
+/* ---------- BOUTON MENU : petit cadre argent (haut-droite) ---------- */
+#btn-landscape-menu {
+  border: 0;
+  background-color: rgba(120,140,178,.55);
+  background-image: var(--fx-frame-button);
+  background-size: contain; background-position: center; background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+          backdrop-filter: blur(8px) saturate(1.2);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(3,10,28,.45);
+  color: #f6f9ff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+
+
+</style>
+
+<style id="elenya-frames-priority-fix">
+/* Correctif cascade : les styles givrés de frames-lite priment sur les cadres bleus JRPG.
+   !important uniquement sur les propriétés réellement bloquées par JRPG_UI_Styles.html. */
+body.game-live .narrative {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-image:
+    var(--fx-noise),
+    radial-gradient(70% 160% at 50% 50%, rgba(216,228,244,.58), rgba(176,193,219,.46) 58%, rgba(112,130,165,.40)),
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 40%) !important;
+  background-size: 160px 160px, auto, auto !important;
+  background-repeat: repeat, no-repeat, no-repeat !important;
+  -webkit-backdrop-filter: blur(4px) saturate(1.2) brightness(1.1) !important;
+  backdrop-filter: blur(4px) saturate(1.2) brightness(1.1) !important;
+  box-shadow: inset 0 0 calc(var(--k) * 30) rgba(255,255,255,.20), 0 calc(var(--k) * 12) calc(var(--k) * 34) rgba(3,10,28,.45) !important;
+  color: #07122a !important;
+  text-align: center !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.38) !important;
+}
+body.game-live .narrative::before,
+body.game-live .narrative::after {
+  content: "" !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+body.game-live .choice-btn {
+  border: 0 !important;
+  border-left: 0 !important;
+  border-radius: calc(var(--k) * 20) !important;
+  background-color: rgba(5,7,13,.78) !important;
+  background-image:
+    var(--fx-noise),
+    linear-gradient(180deg, rgba(12,15,24,.78), rgba(3,5,10,.86)) !important;
+  box-shadow: inset 0 0 calc(var(--k) * 18) rgba(255,255,255,.16), 0 calc(var(--k) * 6) calc(var(--k) * 18) rgba(3,10,28,.4) !important;
+  color: #f4f6fb !important;
+}
+body.game-live .choice-btn:hover:not(:disabled),
+body.game-live .choice-btn:focus-visible:not(:disabled) {
+  border-color: transparent !important;
+  border-left-color: transparent !important;
+  background-color: rgba(9,12,20,.84) !important;
+  background-image:
+    var(--fx-noise),
+    linear-gradient(180deg, rgba(18,22,33,.84), rgba(5,7,13,.9)) !important;
+  color: #fff !important;
+  transform: none !important;
+  box-shadow: inset 0 0 calc(var(--k) * 20) rgba(255,255,255,.22), 0 calc(var(--k) * 8) calc(var(--k) * 22) rgba(3,10,28,.5) !important;
+}
+body.game-live .choice-btn::before,
+body.game-live .choice-btn::after {
+  content: "" !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+</style>
+
+<style id="elenya-source-ui-lock-v1">
+/* Source officielle : le cadre Claude doit gagner sur les anciens styles bleus. */
+body.game-live .choice-btn {
+  background-color: rgba(5,7,13,.78) !important;
+  background-image:
+    var(--fx-noise),
+    linear-gradient(180deg, rgba(12,15,24,.78), rgba(3,5,10,.86)) !important;
+  color: #f4f6fb !important;
+  border: 0 !important;
+  border-radius: calc(var(--k) * 20) !important;
+}
+body.game-live .choice-btn:hover:not(:disabled),
+body.game-live .choice-btn:focus-visible {
+  background-color: rgba(9,12,20,.84) !important;
+  background-image:
+    var(--fx-noise),
+    linear-gradient(180deg, rgba(18,22,33,.84), rgba(5,7,13,.9)) !important;
+}
+#narration-start-modal {
+  display: grid;
+}
+#narration-start-modal[hidden] { display: none !important; }
+.narration-start-panel .narration-start-actions button {
+  min-width: 170px;
+}
+</style>
+
+<style id="elenya-launch-display-fix">
+/* Règles de lancement précédemment orphelines, maintenant dans un bloc valide */
+.narration-start-panel .display-choice.active {
+  background: linear-gradient(135deg, rgba(120,175,245,.32), rgba(55,92,145,.58)) !important;
+  border-color: rgba(210,235,255,.9) !important;
+  box-shadow: 0 0 22px rgba(120,180,255,.14), inset 0 0 16px rgba(190,220,255,.06) !important;
+}
+#display-choice-status { min-height: 1.4em; margin: .7rem 0 .25rem; font-size: .78rem; color: rgba(195,220,250,.58); }
+#narration-step[hidden] { display:none !important; }
+</style>

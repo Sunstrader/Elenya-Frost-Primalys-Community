@@ -1,0 +1,16 @@
+{
+  "name": "elenya",
+  "version": "52.5.4",
+  "description": "ELENYA — L’Héritage de Primaëlys",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node scripts/build.js",
+    "lint": "node scripts/lint.js",
+    "test": "node elenya-refonte-52.4/qa/bivouac-kaelen.cjs && node elenya-refonte-52.4/qa/romance.cjs && node elenya-refonte-52.4/qa/check.cjs && node elenya-refonte-52.4/qa/client-state.cjs && node elenya-refonte-52.4/qa/refonte-fixes.cjs && node elenya-refonte-52.4/qa/first-run.cjs && node elenya-refonte-52.4/qa/choice-distinctness.cjs && node elenya-refonte-52.4/qa/ux-polish.cjs && node elenya-refonte-52.4/qa/image-reviewer.cjs && node elenya-refonte-52.4/qa/coherence-audit.cjs"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=20"
+  }
+}

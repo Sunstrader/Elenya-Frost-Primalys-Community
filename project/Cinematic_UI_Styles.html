@@ -1,0 +1,686 @@
+<style id="elenya-cinematic-ui-v1">
+/*
+ * ELENYA — CINEMATIC STAGE UI v1.0
+ * Couche de mise en scène uniquement.
+ * Dépend de Styles_Game + JRPG_UI_Styles.
+ * Aucun changement de narration, de flags, de sauvegardes ou de destinations de choix.
+ */
+
+:root {
+  --cinema-shift: min(4.5vw, 64px);
+  --cinema-focus-bright: 1.06;
+  --cinema-muted-bright: .76;
+}
+
+/* ---------- Décors : mouvement lent, très discret ---------- */
+body.game-live::before,
+body.game-live::after {
+  inset: -1.2%;
+  transform-origin: 50% 50%;
+  animation: elenyaCinemaBgDrift 22s ease-in-out infinite alternate;
+  will-change: opacity, transform;
+}
+body.game-live::after { animation-direction: alternate-reverse; }
+
+@keyframes elenyaCinemaBgDrift {
+  0%   { transform: scale(1.012) translate3d(-.25%, -.15%, 0); }
+  50%  { transform: scale(1.026) translate3d(.25%, .1%, 0); }
+  100% { transform: scale(1.018) translate3d(.1%, .25%, 0); }
+}
+
+/* ---------- Sprites : respiration + hiérarchie de mise en scène ---------- */
+body.game-live .sprite-layer.cinema-present::before,
+body.game-live .sprite-layer.cinema-present::after {
+  transform-origin: 50% 100%;
+  animation: elenyaCinemaBreath 5.8s ease-in-out infinite;
+  will-change: transform, filter, opacity;
+}
+body.game-live #sprite-left.cinema-present::before,
+body.game-live #sprite-left.cinema-present::after { animation-delay: -.8s; }
+body.game-live #sprite-right.cinema-present::before,
+body.game-live #sprite-right.cinema-present::after { animation-delay: -1.9s; }
+
+@keyframes elenyaCinemaBreath {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-2px) scale(1.006, 1.010); }
+}
+
+body.game-live .sprite-layer.cinema-active { z-index: 3; }
+body.game-live .sprite-layer.cinema-active::before,
+body.game-live .sprite-layer.cinema-active::after {
+  filter: brightness(var(--cinema-focus-bright)) saturate(1.06) contrast(1.015);
+}
+body.game-live .sprite-layer.cinema-muted::before,
+body.game-live .sprite-layer.cinema-muted::after {
+  filter: brightness(var(--cinema-muted-bright)) saturate(.72) contrast(.94);
+}
+
+/* Les layers 3D suivent la même hiérarchie quand un côté explicite est connu. */
+body.game-live .character-3d-layer.cinema-active { opacity: 1; filter: brightness(1.06) saturate(1.04); }
+body.game-live .character-3d-layer.cinema-muted  { filter: brightness(.76) saturate(.72); }
+
+/* ---------- Boîte de dialogue adaptative ---------- */
+body.game-live .body-content {
+  transition: transform .42s cubic-bezier(.2,.75,.25,1), opacity .28s ease;
+}
+body.game-live.cinema-dialogue-right .body-content {
+  transform: translateX(var(--cinema-shift));
+}
+body.game-live.cinema-dialogue-left .body-content {
+  transform: translateX(calc(-1 * var(--cinema-shift)));
+}
+
+/* ---------- Nom du locuteur : seulement si le moteur fournit un nom explicite ---------- */
+#cinema-speaker-name {
+  width: min(100%, var(--jrpg-dialog-width, 980px));
+  margin: 0 auto -8px;
+  padding-left: 18px;
+  position: relative;
+  z-index: 16;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(7px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+#cinema-speaker-name.visible { opacity: 1; transform: none; }
+#cinema-speaker-name > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 13px 4px;
+  border: 1px solid rgba(196,222,255,.34);
+  border-bottom-color: rgba(196,222,255,.16);
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, rgba(18,31,59,.96), rgba(7,13,29,.96));
+  box-shadow: 0 8px 22px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.045);
+  color: rgba(238,246,255,.94);
+  font: 600 .68rem/1 "Cinzel", serif;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,.85);
+}
+
+/* ---------- Carton de lieu / entrée de scène ---------- */
+#cinema-location-card {
+  position: fixed;
+  left: clamp(18px, 4.4vw, 72px);
+  top: clamp(82px, 13vh, 142px);
+  z-index: 24;
+  width: min(520px, calc(100vw - 40px));
+  padding: 10px 0 10px 18px;
+  border-left: 2px solid rgba(210,232,255,.72);
+  color: #f6f9ff;
+  text-shadow: 0 3px 20px #000, 0 1px 6px #000;
+  opacity: 0;
+  transform: translateX(-14px);
+  filter: blur(2px);
+  pointer-events: none;
+  transition: opacity .4s ease, transform .5s cubic-bezier(.2,.75,.2,1), filter .45s ease;
+}
+#cinema-location-card.show {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+#cinema-location-kicker {
+  margin-bottom: 5px;
+  color: rgba(201,222,249,.66);
+  font: 600 .62rem/1.2 "Cinzel", serif;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+#cinema-location-title {
+  max-width: 100%;
+  font: 600 clamp(1.15rem, 2.05vw, 1.72rem)/1.15 "Cinzel", serif;
+  letter-spacing: .035em;
+  text-wrap: balance;
+}
+
+/* ---------- Moment de décision ---------- */
+body.cinema-choice-stage #vignette {
+  background:
+    linear-gradient(to bottom, rgba(3,5,12,.03) 0%, rgba(3,5,12,.06) 42%, rgba(3,5,12,.28) 100%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(4,5,12, calc(var(--vignette-opacity) + .06)) 100%);
+}
+body.cinema-choice-stage .narrative {
+  opacity: .90;
+  box-shadow: 0 20px 64px rgba(0,0,0,.52), inset 0 1px rgba(255,255,255,.035) !important;
+}
+body.cinema-choice-stage .choices.jrpg-ready .choice-btn {
+  animation: elenyaCinemaChoiceCard .34s cubic-bezier(.2,.8,.25,1) both;
+}
+body.cinema-choice-stage .choices.jrpg-ready .choice-btn:nth-child(2) { animation-delay: .055s; }
+body.cinema-choice-stage .choices.jrpg-ready .choice-btn:nth-child(3) { animation-delay: .11s; }
+body.cinema-choice-stage .choices.jrpg-ready .choice-btn:nth-child(4) { animation-delay: .165s; }
+body.cinema-choice-stage .choices.jrpg-ready .choice-btn:nth-child(5) { animation-delay: .22s; }
+body.cinema-choice-stage .choices.jrpg-ready .choice-btn:nth-child(n+6) { animation-delay: .26s; }
+
+@keyframes elenyaCinemaChoiceCard {
+  from { opacity: 0; transform: translateY(9px) scale(.992); filter: blur(1px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+/* ---------- Sauvegarde : feedback court plutôt qu'un élément criard ---------- */
+#aaa-status.cinema-save-pulse {
+  animation: elenyaCinemaSavePulse .9s ease both;
+}
+@keyframes elenyaCinemaSavePulse {
+  0%   { opacity: .5; transform: translateY(-3px); }
+  28%  { opacity: 1; transform: none; filter: drop-shadow(0 0 8px rgba(188,221,255,.34)); }
+  100% { opacity: .72; filter: none; }
+}
+
+/* ---------- Écran titre : image plus vivante, sans recadrage agressif ---------- */
+#accueil-screen::before {
+  transform-origin: 50% 50%;
+  animation: elenyaCinemaTitleDrift 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes elenyaCinemaTitleDrift {
+  from { transform: scale(1.00) translate3d(0,0,0); }
+  to   { transform: scale(1.035) translate3d(0,-.6%,0); }
+}
+.accueil-title {
+  text-shadow: 0 0 30px rgba(171,207,255,.18), 0 4px 30px rgba(0,0,0,.84);
+}
+.accueil-menu .accueil-btn {
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease, color .18s ease;
+}
+.accueil-menu .accueil-btn:hover,
+.accueil-menu .accueil-btn:focus-visible {
+  transform: translateX(4px);
+}
+
+/* ---------- Mobile : ne jamais déplacer la boîte hors écran ---------- */
+@media (max-width: 760px) {
+  body.game-live.cinema-dialogue-right .body-content,
+  body.game-live.cinema-dialogue-left .body-content { transform: none; }
+  #cinema-speaker-name { padding-left: 10px; margin-bottom: -6px; }
+  #cinema-location-card {
+    left: 15px;
+    top: max(72px, 10vh);
+    width: calc(100vw - 30px);
+    padding-left: 12px;
+  }
+  #cinema-location-title { font-size: clamp(1rem, 5vw, 1.35rem); }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  #cinema-location-card { top: 54px; }
+  #cinema-location-kicker { font-size: .52rem; }
+  #cinema-location-title { font-size: 1rem; }
+}
+
+/* Respect de l'accessibilité. */
+@media (prefers-reduced-motion: reduce) {
+  body.game-live::before,
+  body.game-live::after,
+  #accueil-screen::before,
+  body.game-live .sprite-layer.cinema-present::before,
+  body.game-live .sprite-layer.cinema-present::after,
+  body.cinema-choice-stage .choices.jrpg-ready .choice-btn,
+  #aaa-status.cinema-save-pulse {
+    animation: none !important;
+  }
+  #cinema-location-card,
+  body.game-live .body-content { transition-duration: .01ms !important; }
+}
+
+/* Final visual micro-polish — hiérarchie sans surcharge. */
+body.game-live .sprite-layer.cinema-present::before,
+body.game-live .sprite-layer.cinema-present::after {
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,.28)) drop-shadow(0 0 7px rgba(185,218,255,.08));
+}
+body.game-live .sprite-layer.cinema-active::before,
+body.game-live .sprite-layer.cinema-active::after {
+  filter: drop-shadow(0 11px 18px rgba(0,0,0,.32)) drop-shadow(0 0 8px rgba(185,218,255,.10))
+          brightness(var(--cinema-focus-bright)) saturate(1.06) contrast(1.015);
+}
+body.game-live .sprite-layer.cinema-muted::before,
+body.game-live .sprite-layer.cinema-muted::after {
+  filter: drop-shadow(0 9px 15px rgba(0,0,0,.25))
+          brightness(var(--cinema-muted-bright)) saturate(.72) contrast(.94);
+}
+
+/* Le feedback sauvegarde n'occupe plus l'écran en permanence. */
+body.game-live #aaa-status {
+  opacity: 0 !important;
+  transform: translateY(-4px) !important;
+  transition: opacity .28s ease, transform .28s ease !important;
+}
+body.game-live #aaa-status.cinema-save-visible,
+body.game-live #aaa-status.saving {
+  opacity: .78 !important;
+  transform: none !important;
+}
+
+/* En phase de décision, le texte devient secondaire sans perdre sa lisibilité. */
+body.cinema-choice-stage .narrative {
+  opacity: .82;
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+  body.game-live.cinema-cast-single .sprite-layer:not(.sprite-fen) {
+    bottom: clamp(72px, 8dvh, 108px);
+    height: 61%;
+  }
+  body.game-live.cinema-cast-duo .sprite-layer:not(.sprite-fen) {
+    bottom: clamp(72px, 8dvh, 108px);
+    height: 55%;
+  }
+  body.game-live.cinema-cast-single #sprite-center:not(.sprite-fen) {
+    width: min(78vw, 500px);
+  }
+  body.game-live.cinema-cast-duo #sprite-left:not(.sprite-fen),
+  body.game-live.cinema-cast-duo #sprite-right:not(.sprite-fen) {
+    width: min(52vw, 380px);
+  }
+
+  body.cinema-choice-stage.cinema-cast-single .sprite-layer:not(.sprite-fen) {
+    bottom: clamp(112px, 13dvh, 154px);
+    height: 58%;
+  }
+  body.cinema-choice-stage.cinema-cast-duo .sprite-layer:not(.sprite-fen) {
+    bottom: clamp(104px, 12dvh, 142px);
+    height: 52%;
+  }
+  body.cinema-choice-stage .narrative {
+    opacity: .76;
+  }
+}
+
+
+
+/* ---------- V1.1 — rendu proche des planches de référence ---------- */
+body.game-live .header {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(880px, calc(100vw - 132px));
+  min-height: 72px;
+  padding: 10px 96px 12px;
+  justify-content: center;
+  border: 1px solid rgba(214, 230, 255, .20);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(4,8,20,.66), rgba(5,9,22,.34));
+  box-shadow: 0 14px 40px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter: blur(10px) saturate(112%);
+  -webkit-backdrop-filter: blur(10px) saturate(112%);
+}
+body.game-live .header::before,
+body.game-live .header::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(220,233,255,.68), transparent);
+}
+body.game-live .header::before { top: 13px; }
+body.game-live .header::after { bottom: 13px; opacity: .55; }
+body.game-live .header-scene-block {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+body.game-live .scene-info {
+  margin: 0;
+  font: 600 .66rem/1.1 "Cinzel", serif;
+  color: rgba(214,229,251,.86);
+  letter-spacing: .34em;
+  text-transform: uppercase;
+}
+body.game-live .scene-title {
+  margin: 0;
+  max-width: 100%;
+  font: 600 clamp(1.12rem, 2.05vw, 1.72rem)/1.12 "Cinzel", serif;
+  color: #f6f8ff;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  text-shadow: 0 3px 18px rgba(0,0,0,.58);
+  text-wrap: balance;
+}
+body.game-live .header-mode-only {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid rgba(191, 212, 247, .20);
+  border-radius: 999px;
+  background: rgba(10,16,34,.44);
+  color: rgba(214,230,255,.78);
+  font: 600 .64rem/1 "Cinzel", serif;
+  letter-spacing: .16em;
+}
+body.game-live #scene-badge {
+  bottom: 96px;
+  top: auto;
+  right: 20px;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(7,11,24,.42);
+  border: 1px solid rgba(188,211,249,.18);
+  color: rgba(225,235,252,.72);
+  backdrop-filter: blur(8px);
+}
+body.game-live #cinema-speaker-name {
+  width: min(100%, var(--jrpg-dialog-width, 980px));
+  margin: 0 auto -10px;
+  padding-left: 22px;
+}
+body.game-live #cinema-speaker-name > span {
+  min-height: 34px;
+  padding: 6px 16px 5px;
+  border-radius: 9px 9px 0 0;
+  border: 1px solid rgba(218, 233, 255, .28);
+  background: linear-gradient(180deg, rgba(16,27,52,.98), rgba(8,14,31,.98));
+  box-shadow: 0 12px 28px rgba(0,0,0,.34);
+  letter-spacing: .16em;
+}
+body.game-live .narrative {
+  width: min(100%, 920px);
+  min-height: clamp(160px, 22vh, 230px);
+  border-radius: 14px !important;
+  border-color: rgba(201,219,248,.22) !important;
+  background:
+    linear-gradient(180deg, rgba(10,16,33,.92) 0%, rgba(8,13,28,.90) 100%),
+    radial-gradient(circle at 14% 0%, rgba(165,210,255,.10), transparent 34%) !important;
+}
+body.game-live .narrative::after {
+  top: 12px;
+  right: 15px;
+}
+body.game-live #jrpg-page-ui,
+body.game-live #jrpg-choice-label,
+body.game-live .choices {
+  width: min(100%, 920px);
+}
+body.game-live #jrpg-choice-label {
+  color: rgba(229,236,250,.62);
+  letter-spacing: .24em;
+}
+body.game-live .choice-btn {
+  min-height: 56px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(196,214,247,.18) !important;
+  border-left: 2px solid rgba(205,225,255,.26) !important;
+  background: linear-gradient(90deg, rgba(15,26,51,.82), rgba(7,12,26,.78) 56%, rgba(5,9,19,.83)) !important;
+}
+body.game-live .choice-btn:hover:not(:disabled),
+body.game-live .choice-btn:focus-visible:not(:disabled) {
+  transform: translateX(6px) !important;
+  border-color: rgba(218,232,255,.54) !important;
+  border-left-color: rgba(235,243,255,.94) !important;
+}
+body.game-live .body-content {
+  max-width: 1260px !important;
+  padding-top: 118px !important;
+  padding-bottom: 20px !important;
+}
+body.game-live #aaa-hud {
+  opacity: .78;
+}
+@media (max-width: 980px) {
+  body.game-live .header {
+    width: calc(100vw - 30px);
+    padding-inline: 20px 86px;
+  }
+}
+@media (max-width: 760px) {
+  body.game-live .header {
+    top: 8px;
+    width: calc(100vw - 16px);
+    min-height: 58px;
+    padding: 8px 60px 9px;
+    border-radius: 12px;
+  }
+  body.game-live .header::before,
+  body.game-live .header::after {
+    left: 12px;
+    right: 12px;
+  }
+  body.game-live .scene-info {
+    font-size: .55rem;
+    letter-spacing: .24em;
+  }
+  body.game-live .scene-title {
+    font-size: clamp(.95rem, 4vw, 1.18rem);
+    letter-spacing: .05em;
+  }
+  body.game-live .header-mode-only {
+    right: 8px;
+    padding: 4px 7px;
+    font-size: .54rem;
+    letter-spacing: .10em;
+  }
+  body.game-live .body-content {
+    padding-top: 76px !important;
+  }
+  body.game-live #scene-badge {
+    right: 10px;
+    bottom: 82px;
+    font-size: .58rem;
+  }
+  body.game-live #cinema-speaker-name {
+    padding-left: 12px;
+  }
+}
+
+
+/* V1.2 — titre superposé sans bandeau noir ni carte opaque. */
+body.game-live > .header {
+  position: fixed !important;
+  top: max(4px, env(safe-area-inset-top)) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(920px, calc(100vw - 32px)) !important;
+  min-height: 58px !important;
+  padding: 7px 86px 9px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.game-live > .header::before { top: 5px; }
+body.game-live > .header::after { bottom: 5px; }
+body.game-live .body-content { padding-top: 86px !important; }
+@media (max-width: 760px) {
+  body.game-live > .header {
+    top: max(2px, env(safe-area-inset-top)) !important;
+    width: calc(100vw - 12px) !important;
+    min-height: 52px !important;
+    padding: 6px 54px 7px !important;
+  }
+  body.game-live .body-content { padding-top: 64px !important; }
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+  body.game-live.cinema-cast-trio.cinema-cast-duo #sprite-left:not(.sprite-fen),
+  body.game-live.cinema-cast-trio.cinema-cast-duo #sprite-right:not(.sprite-fen) { width: 41vw; }
+  body.game-live.cinema-cast-trio.cinema-cast-duo #sprite-center:not(.sprite-fen) { width: 43vw; }
+  body.game-live.cinema-cast-trio.cinema-cast-duo .sprite-layer:not(.sprite-fen) { height: 49%; }
+}
+
+
+/* V1.3 — Texte et choix façon « Cinéma » : sous-titres, dégradé bas, décisions discrètes. */
+body.game-live > .header,
+body.game-live #scene-badge {
+  display: none !important;
+}
+body.game-live .body-content {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 74px clamp(18px, 5vw, 72px) 22px !important;
+  gap: 8px !important;
+  transform: none !important;
+  background: linear-gradient(180deg,
+    transparent 0%, transparent 39%,
+    rgba(2, 7, 15, .50) 64%,
+    rgba(2, 7, 15, .88) 100%);
+}
+body.game-live .narrative {
+  width: min(100%, 950px) !important;
+  min-height: 0 !important;
+  max-height: min(39dvh, 420px) !important;
+  margin: 0 auto !important;
+  padding: 8px 14px !important;
+  overflow-y: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-align: center !important;
+  color: #f7f8fb !important;
+  font-style: normal !important;
+  font-size: calc(clamp(1.08rem, 1.55vw, 1.28rem) * var(--text-scale)) !important;
+  line-height: 1.52 !important;
+  text-shadow: 0 2px 8px #000, 0 1px 2px #000 !important;
+  scrollbar-width: thin;
+}
+body.game-live .narrative::before,
+body.game-live .narrative::after {
+  display: none !important;
+}
+body.game-live .narrative p {
+  margin: 0 0 .55em !important;
+  color: inherit !important;
+}
+body.game-live #cinema-speaker-name {
+  width: min(100%, 950px);
+  margin: 0 auto -4px;
+  padding: 0;
+  text-align: center;
+}
+body.game-live #cinema-speaker-name > span {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-shadow: 0 2px 8px #000;
+}
+body.game-live #jrpg-page-ui {
+  width: min(100%, 950px);
+  min-height: 22px;
+  margin: 0 auto 1px;
+  color: rgba(236, 245, 255, .83);
+  text-shadow: 0 2px 6px #000;
+}
+body.game-live #jrpg-choice-label {
+  display: none !important;
+}
+body.game-live .choices {
+  width: min(100%, 950px) !important;
+  max-width: 950px !important;
+  margin: 0 auto !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px !important;
+}
+body.game-live .choice-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 48px !important;
+  padding: 11px 18px !important;
+  border: 1px solid rgba(224, 237, 248, .60) !important;
+  border-radius: 999px !important;
+  background: rgba(7, 19, 33, .82) !important;
+  box-shadow: none !important;
+  color: #f5f8fc !important;
+  font: 500 calc(1rem * var(--text-scale))/1.35 "Crimson Pro", Georgia, serif !important;
+  text-align: center !important;
+  text-shadow: 0 1px 5px #000 !important;
+  transform: none !important;
+}
+body.game-live .choice-btn::before,
+body.game-live .choice-btn::after {
+  display: none !important;
+}
+body.game-live .choice-btn > span {
+  flex: 0 1 auto;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+body.game-live .choice-btn:hover:not(:disabled),
+body.game-live .choice-btn:focus-visible:not(:disabled),
+body.game-live .choice-btn.active {
+  border-color: #e9f6ff !important;
+  background: rgba(35, 70, 100, .95) !important;
+  box-shadow: 0 0 0 2px rgba(213, 237, 255, .28) !important;
+  color: #fff !important;
+  transform: none !important;
+}
+body.game-live .choice-btn:focus-visible:not(:disabled) {
+  outline: 2px solid #fff !important;
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  body.game-live .body-content {
+    max-height: 54dvh !important;
+    padding: 48px 12px max(12px, env(safe-area-inset-bottom)) !important;
+    gap: 5px !important;
+    overflow-y: auto !important;
+    background: linear-gradient(180deg, transparent, rgba(2, 7, 15, .74) 30%, rgba(2, 7, 15, .93));
+  }
+  body.game-live .narrative,
+  body.cinema-choice-stage .narrative {
+    width: 100% !important;
+    max-height: 27dvh !important;
+    padding: 5px 8px !important;
+    font-size: calc(clamp(1rem, 4vw, 1.18rem) * var(--text-scale)) !important;
+    line-height: 1.42 !important;
+  }
+  body.game-live .choices {
+    grid-template-columns: 1fr !important;
+    max-height: min(25dvh, 240px) !important;
+    overflow-y: auto !important;
+    gap: 6px !important;
+  }
+  body.game-live .choice-btn {
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+    font-size: calc(1rem * var(--text-scale)) !important;
+  }
+}
+/* En portrait, le bloc de lecture reste au bas de la scène, devant le dock. */
+@media (max-width: 760px) and (orientation: portrait) {
+  body.game-live .body-content {
+    flex: 0 1 auto !important;
+    margin: auto auto 0 !important;
+    padding-top: 8px !important;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  body.game-live .body-content {
+    max-height: 78dvh !important;
+    padding-top: 12px !important;
+  }
+  body.game-live .narrative { max-height: 34dvh !important; }
+}
+body.rf-contrast.game-live .narrative {
+  background: rgba(2, 5, 12, .97) !important;
+  border: 2px solid #fff !important;
+  padding: 12px 16px !important;
+  text-shadow: none !important;
+}
+body.rf-contrast.game-live .choice-btn {
+  background: #07111f !important;
+  border: 2px solid #fff !important;
+}
+
+</style>

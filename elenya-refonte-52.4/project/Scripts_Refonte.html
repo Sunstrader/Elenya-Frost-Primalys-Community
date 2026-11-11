@@ -1,0 +1,818 @@
+<style>
+:root{--rf-panel:#111727;--rf-line:#506282;--rf-text:#ecf3ff}
+.narrative{font-size:calc(clamp(1.12rem,1.45vw,1.48rem) * var(--text-scale))!important;flex-shrink:0}.choice-btn{font-size:calc(1rem * var(--text-scale))!important;line-height:1.5}.hud-row em{display:none}.body-content{overflow-y:auto!important;justify-content:flex-end!important}.choices{flex-shrink:0}
+.rf-tools{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;padding:.7rem 1rem;position:relative;z-index:21}
+.rf-tools button,.rf-dialog button,.rf-reveal{font:inherit;font-size:1rem;color:var(--rf-text);background:#1b2941;border:1px solid var(--rf-line);border-radius:8px;min-height:44px;padding:.5rem .8rem;cursor:pointer}
+.rf-tools button:disabled,.rf-dialog button:disabled{opacity:.45;cursor:default}
+.rf-tools[hidden],.rf-dialog[hidden],.rf-reveal[hidden]{display:none!important}
+.rf-dialog{position:fixed;inset:0;background:rgba(4,7,15,.94);z-index:1100;color:var(--rf-text);overflow:auto;padding:1.1rem max(1rem,calc((100vw - 880px)/2));font-size:1rem}
+.rf-dialog h2{font-size:1.45rem}.rf-dialog h3{font-size:1.1rem}.rf-dialog header{display:flex;gap:1rem;align-items:center;justify-content:space-between;margin-bottom:1rem}.rf-dialog section{padding:.8rem 0;border-bottom:1px solid var(--rf-line)}
+.rf-dialog label{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin:.8rem 0}.rf-dialog input,.rf-dialog select{font:inherit;min-height:44px;max-width:100%;accent-color:#93c9ff}.rf-dialog select{color:var(--rf-text);background:#192640;padding:.4rem}
+.rf-dialog input[type=range]{flex:1;min-width:120px}.rf-dialog summary{padding:.8rem 0;cursor:pointer}.rf-dialog p{line-height:1.6}.rf-dialog .rf-muted{color:#b4c5e1}.rf-live{position:relative;z-index:21;padding:.25rem 1rem;color:#e4f1ff;font-size:1rem;min-height:1.5rem}
+.rf-map-choices{list-style:none;padding:.4rem 0 .6rem 1rem;border-left:2px solid #677da1}.rf-map-choices li{padding:.5rem 0}.rf-map-choices button{text-align:left}.rf-map-node{border-bottom:1px solid var(--rf-line);padding:.7rem 0;scroll-margin-top:1rem}.rf-map-node h3{margin:.4rem 0}.rf-progress{display:flex;gap:1rem;flex-wrap:wrap;padding:.6rem 0}.rf-track{display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;padding:.7rem 0;border-bottom:1px solid var(--rf-line)}
+.rf-reveal{position:fixed;top:1rem;right:1rem;z-index:1050}
+.rf-live:empty{display:none}#accueil-screen.hidden,[id$="-modal"]:not(.show){visibility:hidden}.rf-tools{flex-shrink:0}.body-content{min-height:0}.rf-option-btn{display:none}body.game-live .rf-option-btn{display:inline-flex}.rf-tools:not([hidden]){position:fixed;top:64px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 1rem);background:rgba(7,12,25,.94);border:1px solid var(--rf-line);border-radius:10px;box-shadow:0 8px 30px #0008;backdrop-filter:blur(10px)}
+#accueil-screen{overflow-y:auto;justify-content:flex-start;padding-top:clamp(1rem,5vh,3rem);padding-bottom:2rem}.accueil-menu{flex-shrink:0}
+#rf-frost-screen{position:fixed;inset:40% 0 0;z-index:3;pointer-events:none;opacity:0;background:linear-gradient(165deg,transparent 45%,#a2ebff33 45.3%,transparent 45.8%),linear-gradient(23deg,transparent 70%,#c1f4ff77 70.3%,transparent 70.8%),linear-gradient(0deg,#9bdded55,transparent 70%);transition:opacity 1s}body.rf-ground-frost #rf-frost-screen{opacity:1}body.rf-ice-aftermath #rf-frost-screen{inset:0;opacity:.75;background:radial-gradient(ellipse at 35% 80%,#c2f5ff66,transparent 65%),linear-gradient(145deg,transparent 60%,#b5f3ff88 60.3%,transparent 60.9%)}
+body.rf-ui-hidden .body-content,body.rf-ui-hidden .header,body.rf-ui-hidden .footer,body.rf-ui-hidden .rf-tools,body.rf-ui-hidden #aaa-hud,body.rf-ui-hidden #aaa-status,body.rf-ui-hidden .rf-live{visibility:hidden}
+body.rf-contrast .body-content,body.rf-contrast .header,body.rf-contrast .footer,body.rf-contrast .narrative,body.rf-contrast .choices{background:#080d17!important;color:#fff!important}body.rf-contrast .choice-btn{background:#111d31!important;color:#fff!important;border:2px solid #d7e6ff!important}
+body.rf-reduce-motion *,body.rf-reduce-motion *::before,body.rf-reduce-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}body.rf-reduce-motion canvas,body.rf-reduce-motion #ice-crack,body.rf-reduce-motion #flashback-veil{display:none!important}
+.rf-ground-frost::after{filter:brightness(1.1) saturate(.75)}.sprite-layer.rf-frozen{filter:grayscale(.65) brightness(1.4) drop-shadow(0 0 14px #8cdeff)!important}.rf-ground-label{position:relative;z-index:21;padding:.3rem 1rem;color:#bcf1ff}
+.rf-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+button:focus-visible,summary:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #bee6ff;outline-offset:3px}
+@media(max-width:650px){.rf-tools{padding:.4rem;flex-wrap:nowrap;overflow-x:auto}.rf-tools button{flex:0 0 auto;white-space:nowrap}.body-content{padding-inline:1rem!important}.rf-dialog{padding:1rem}.accueil-menu{max-width:100%;padding-inline:1rem}.accueil-btn{white-space:normal!important}#accueil-screen{overflow:auto;justify-content:flex-start;padding-top:2rem;padding-bottom:2rem}.choice-btn{min-height:48px}}
+
+body.rf-spectral-fen::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* au-dessus du bg, en-dessous des persos */
+  pointer-events: none;
+  background: rgba(4, 12, 24, 0.6);
+}
+body.rf-spectral-fen .rf-snow-overlay {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle, rgba(255,255,255,0.7) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.4) 1.5px, transparent 1.5px);
+  background-size: 60px 60px, 100px 100px;
+  background-position: 0 0, 20px 20px;
+  animation: rf-snow-anim 10s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.rf-spectral-fen .rf-snow-overlay {
+    animation: none;
+  }
+}
+@keyframes rf-snow-anim {
+  0% { background-position: 0px 0px, 20px 20px; }
+  100% { background-position: 100px 600px, -50px 1000px; }
+}
+
+</style>
+<style>
+
+
+<div id="rf-frost-screen" aria-hidden="true"></div>
+<div class="rf-tools" id="rf-tools" hidden>
+  <button type="button" id="rf-settings">Paramètres</button><button type="button" id="rf-map">Parcours</button>
+  <button type="button" id="rf-codex">Codex</button><button type="button" id="rf-hide">Masquer l’interface</button>
+</div>
+<div class="rf-live" id="rf-live" role="status" aria-live="polite"></div>
+<div class="rf-ground-label" id="rf-ground-label" hidden></div>
+<button class="rf-reveal" id="rf-reveal" type="button" hidden>Afficher l’interface</button>
+<div id="rf-dialog" class="rf-dialog" role="dialog" aria-modal="true" aria-labelledby="rf-dialog-title" hidden>
+  <header><h2 id="rf-dialog-title"></h2><button type="button" id="rf-close">Fermer</button></header>
+  <div id="rf-dialog-content"></div>
+</div>
+<script>
+'use strict';
+Object.assign(ACHIEVEMENTS_REGISTRY,{
+  ach_archive_sans_chaines:{icon:'📜',title:'Une mémoire sans chaînes',desc:'Dans le Cycle Brisé, conserver les clauses sans exposer les victimes.'},
+  ach_amitie_choisie:{icon:'❄',title:'La place d’un ami',desc:'Choisir explicitement l’amitié et voir cette limite respectée.'}
+});
+
+// Cache audio local IndexedDB avec fallback transparent en mémoire LRU (35 éléments max)
+
+
+// Découpage du récit sans perte ni omission (max 800 caractères par segment)
+function segmentNarrative(fullText, maxChunkSize = 800) {
+  if (!fullText || typeof fullText !== 'string') return [];
+  const trimmed = fullText.trim().replace(/\*+/g, '');
+  if (trimmed.length <= maxChunkSize) return [trimmed];
+
+  const paragraphs = trimmed.split(/\n\s*\n/);
+  const chunks = [];
+  let currentChunk = '';
+
+  for (const para of paragraphs) {
+    const cleanPara = para.trim();
+    if (!cleanPara) continue;
+
+    if (cleanPara.length > maxChunkSize) {
+      const sentences = cleanPara.match(/[^.!?…\n]+[.!?…]*(?:\s+|$)/g) || [cleanPara];
+      for (const sent of sentences) {
+        const cleanSent = sent.trim();
+        if (!cleanSent) continue;
+        if (cleanSent.length > maxChunkSize) {
+          const words = cleanSent.split(/\s+/);
+          for (const word of words) {
+            if ((currentChunk + ' ' + word).trim().length > maxChunkSize) {
+              if (currentChunk.trim()) chunks.push(currentChunk.trim());
+              currentChunk = word;
+            } else {
+              currentChunk = currentChunk ? (currentChunk + ' ' + word) : word;
+            }
+          }
+        } else {
+          if ((currentChunk + ' ' + cleanSent).trim().length > maxChunkSize) {
+            if (currentChunk.trim()) chunks.push(currentChunk.trim());
+            currentChunk = cleanSent;
+          } else {
+            currentChunk = currentChunk ? (currentChunk + ' ' + cleanSent) : cleanSent;
+          }
+        }
+      }
+    } else {
+      if ((currentChunk + '\n\n' + cleanPara).trim().length > maxChunkSize) {
+        if (currentChunk.trim()) chunks.push(currentChunk.trim());
+        currentChunk = cleanPara;
+      } else {
+        currentChunk = currentChunk ? (currentChunk + '\n\n' + cleanPara) : cleanPara;
+      }
+    }
+  }
+  if (currentChunk.trim()) chunks.push(currentChunk.trim());
+  return chunks;
+}
+
+const RF = (() => {
+  const $=id=>document.getElementById(id), clone=x=>JSON.parse(JSON.stringify(x));
+  const read=(k, fallback)=>{try{const raw=localStorage.getItem(k);return raw===null?fallback:JSON.parse(raw)}catch(_){return fallback}};
+  let tellTimer=null;const tell=(t,sticky)=>{const el=$('rf-live');if(!el)return;el.textContent=t||'';clearTimeout(tellTimer);if(t&&!sticky)tellTimer=setTimeout(()=>{if(el.textContent===t)el.textContent=''},1400)};
+  const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(_){tell('Stockage local indisponible ou plein : exporte une sauvegarde.');return false}};
+  const defaults={music:.35,ambience:.1,effects:.16,voice:1,narrator:false,voiceEngine:"classic",voiceURI:"",voiceStyle:"fantasy",voiceDuck:"reduce",rate:.95,readChoices:false,autoFallback:true,contrast:false,motion:!matchMedia('(prefers-reduced-motion: reduce)').matches,vibration:false,auto:false};
+
+  
+  
+  
+
+  
+
+  
+
+  const legacyPrefs=read('ef_preferences_v524',{}),prefs={...defaults,...legacyPrefs};
+  const legacyDefaults={music:.7,ambience:.18,effects:.3,voice:.8};
+  Object.keys(legacyDefaults).forEach(k=>{if(Number(legacyPrefs[k])===legacyDefaults[k])prefs[k]=defaults[k]});
+  let data=null,busy=false,requestEpoch=0,pending=null,voiceEpoch=0,isVoiceBusy=false,voiceAbortController=null,previewEpoch=0,previewAbortController=null,currentUtterance=null,autoTimer=null,modalFocus=null,explorer=null,audioContext=null,ambientNode=null,ambientGain=null,ambientFilter=null,ambienceKind=null,galleryPlayer=null,toolsOpen=false,narratorDucking=false,duckLevel=1,duckTimer=null,effectsBus=null;
+  let history={entries:[],index:-1},historyMode='classic';
+  const coverage=read('ef_coverage_v524',{scenes:{},edges:{},music:[]});
+  coverage.scenes=coverage.scenes||{};coverage.edges=coverage.edges||{};coverage.music=Array.isArray(coverage.music)?coverage.music:[];
+
+  function active(){return getActiveState()||{}}
+  function mode(){return active().gameMode==='ngplus'?'ngplus':'classic'}
+  function key(){return 'ef_rollback_v524_'+historyMode}
+  function fingerprint(s){return JSON.stringify([s.currentSceneId,s.gameMode,s.flags,s.gauges,s.choiceHistory,s.inventory,s.narrative]);}
+  function saveHistory(){
+    while(history.entries.length>24 || (history.entries.length>1 && JSON.stringify(history).length>700000)){history.entries.shift();history.index--;}
+    history.index=Math.max(-1,history.index);write(key(),history);buttons();
+  }
+  function resetHistory(){history={entries:[],index:-1};historyMode=mode();write(key(),history);buttons();}
+  function restoreHistory(){historyMode=mode();const stored=read(key(),{entries:[],index:-1});history=Array.isArray(stored.entries)&&Number.isInteger(stored.index)?stored:{entries:[],index:-1};const entry=history.entries[history.index];if(entry&&fingerprint(entry.state)!==fingerprint(active()))history={entries:[],index:-1};buttons();}
+  function buttons(){const locked=!!active().noRollback;if($('rf-back'))$('rf-back').disabled=busy||locked||history.index<=0;if($('rf-forward'))$('rf-forward').disabled=busy||locked||history.index>=history.entries.length-1;}
+  function checkpoint(){if(!data)return;const s=clone(active()),d=clone(data);delete d.renderedState;
+    if(pending){history.entries=history.entries.slice(0,history.index+1);pending=null;}
+    const last=history.entries[history.index];if(!last||fingerprint(last.state)!==fingerprint(s)){history.entries.push({state:s,scene:d});history.index=history.entries.length-1;}else last.scene=d;
+    saveHistory();
+  }
+  function rollback(delta){if(busy||active().noRollback)return;const index=history.index+delta,entry=history.entries[index];if(!entry)return;
+    stopVoice();clearTimeout(autoTimer);requestEpoch++;stopAmbientMedia(false);
+    const restored=clone(entry.state);restored.achievements=Array.from(new Set([...getAllAchievements(),...(restored.achievements||[])]));
+    restored.sessionStartedAt=Date.now();history.index=index;setActiveState(restored);data=clone(entry.scene);
+    originalRender(data);present();saveHistory();tell('Point précédent restauré : '+data.title);autoSave();
+  }
+  function prepareChoice(){if(busy)return false;stopVoice();clearTimeout(autoTimer);stopAmbientMedia(false);checkpoint();pending=clone(active());busy=true;buttons();
+    write('elenya_'+mode()+'_before_choice',{state:clone(active()),timestamp:Date.now(),sceneName:data&&data.title});return true;
+  }
+  function settle(success){busy=false;if(!success)pending=null;buttons();}
+  function scene(next){
+    data=clone(next);if(historyMode!==mode())restoreHistory();
+    if(next.renderedState)setActiveState(next.renderedState);
+    coverage.scenes[(next.gameMode||mode())+':'+(next.sceneId||next.sceneNumber)]=true;
+    const h=active().choiceHistory||[],last=h[h.length-1];if(last)coverage.edges[mode()+':'+last.scene+':'+last.choice]=true;
+    write('ef_coverage_v524',coverage);checkpoint();present();
+  }
+  function present(){
+    $('rf-tools').hidden=!toolsOpen||!$('accueil-screen').classList.contains('hidden');buttons();
+    document.body.classList.add('game-live');
+    document.body.classList.toggle('rf-ground-frost',!!data?.presentation?.groundFrozen);
+    document.body.classList.toggle('rf-ice-aftermath',!!data?.presentation?.iceStormAftermath);
+    document.body.classList.toggle('rf-spectral-fen',!!data?.presentation?.spectralOverlay);
+    if (data?.presentation?.spectralOverlay && !document.getElementById('rf-snow-overlay-el')) {
+      const snow = document.createElement('div'); snow.id = 'rf-snow-overlay-el'; snow.className = 'rf-snow-overlay'; document.body.appendChild(snow);
+    } else if (!data?.presentation?.spectralOverlay && document.getElementById('rf-snow-overlay-el')) {
+      var el = document.getElementById('rf-snow-overlay-el'); if(el && el.parentNode) el.parentNode.removeChild(el); else if(el && el.remove) el.remove();
+    }
+    document.querySelectorAll('.header,.body-content,.footer').forEach(el=>el.inert=false);
+    const label=$('rf-ground-label');label.hidden=!data?.presentation?.groundFrozen;label.textContent='Le givre que tu as créé recouvre encore le sol.';
+    const frozen=data?.presentation?.frozenCharacter;['left','right','center'].forEach(side=>{const layer=$('sprite-'+side),url=layer.dataset.current||'';layer.classList.toggle('rf-frozen',!!frozen&&(frozen==='both'||url.toLowerCase().includes(frozen.toLowerCase())));});
+    setAmbience(data?.presentation?.ambience||'quiet');
+    prefs.narrator = false;
+    prefs.voiceEngine = 'classic';
+    if(!prefs.narrator){$('rf-live').textContent='';}
+    if(prefs.narrator&&!document.body.classList.contains('video-playing'))speak();
+    if(!window.__elenyaVoiceWatch && typeof MutationObserver !== 'undefined'){
+      window.__elenyaVoiceWatch=new MutationObserver(()=>{
+        if(!prefs.narrator||document.body.classList.contains('video-playing')||isVoiceBusy)return;
+        speak();
+      });
+      window.__elenyaVoiceWatch.observe(document.body,{attributes:true,attributeFilter:['class']});
+    }
+    scheduleAuto();
+  }
+  function syncAudioMix(){
+    const bgm=$('bgm');
+    if(bgm)bgm.volume=_isMuted?0:(bgm._baseVolume??prefs.music)*duckLevel;
+    if(ambientGain){ambientGain.gain.cancelScheduledValues(audioContext.currentTime);ambientGain.gain.setTargetAtTime(_isMuted?0:prefs.ambience*.12*duckLevel,audioContext.currentTime,.04);}
+    if(effectsBus)effectsBus.gain.setTargetAtTime(_isMuted?0:prefs.effects*duckLevel,audioContext.currentTime,.04);
+    if(galleryPlayer)galleryPlayer.volume=_isMuted?0:prefs.music*duckLevel;
+  }
+  function getDuckTarget(active){
+    if(!active) return 1;
+    return 0;
+  }
+  function duckOtherAudio(active){
+    if(active===narratorDucking)return;
+    narratorDucking=active;clearInterval(duckTimer);
+    const from=duckLevel,target=getDuckTarget(active),steps=10;let step=0;
+    duckTimer=setInterval(()=>{duckLevel=from+(target-from)*(++step/steps);syncAudioMix();if(step>=steps){clearInterval(duckTimer);duckTimer=null;}},active?20:50);
+  }
+
+  let voicePlayer=null;
+  let voiceUnlocked=false;
+  let voiceSource=null;
+  let voiceGain=null;
+  function getVoicePlayer(){
+    if(!voicePlayer&&typeof Audio!=='undefined'){
+      voicePlayer=new Audio();
+      voicePlayer.id='rf-voice-player';
+      voicePlayer.preload='auto';
+      voicePlayer.addEventListener('error',()=>{voiceUnlocked=false;});
+    }
+    return voicePlayer;
+  }
+
+  // Lecteur d'aperçu dédié dans les paramètres (séparé du lecteur principal de scène)
+  let previewPlayer=null;
+  function getPreviewPlayer(){
+    if(!previewPlayer&&typeof Audio!=='undefined'){
+      previewPlayer=new Audio();
+      previewPlayer.id='rf-preview-player';
+    }
+    return previewPlayer;
+  }
+
+  function updateNarrateUI(speaking, stateText){
+    const btn=$('btn-rf-narrate');
+    if(btn){
+      btn.textContent=speaking?'⏹️':'🎙️';
+      btn.title=speaking?'Arrêter la narration':'Narration vocale';
+      btn.setAttribute('aria-label',speaking?'Arrêter la narration':'Narration vocale');
+      btn.classList.toggle('active',speaking);
+      btn.setAttribute('aria-pressed',speaking?'true':'false');
+    }
+    const readBtn=$('rf-read');if(readBtn)readBtn.disabled=speaking;
+    if(stateText) tell(stateText);
+  }
+
+  function frenchVoices(){
+    if(!('speechSynthesis' in window))return [];
+    return window.speechSynthesis.getVoices().filter(v=>/^fr(?:-|_|$)/i.test(v.lang)).sort((a,b)=>{
+      const scoreA = /^fr[-_]CA$/i.test(a.lang) ? 1000 : 0;
+      const scoreB = /^fr[-_]CA$/i.test(b.lang) ? 1000 : 0;
+      return scoreB - scoreA || a.name.localeCompare(b.name,'fr');
+    });
+  }
+
+  function refreshVoiceChoices(){
+    const select=$('rf-voice-select');if(!select)return;
+    const voices=frenchVoices();
+    let html='<option value="">Automatique — français</option>';
+    if(voices.length>0){
+      html+='<optgroup label="Voix du système local (synthèse navigateur)">';
+      voices.forEach(v=>{
+        html+='<option value="'+escapeHtml(v.voiceURI)+'">'+escapeHtml(v.name)+' ('+escapeHtml(v.lang)+')</option>';
+      });
+      html+='</optgroup>';
+    }
+    select.innerHTML=html;
+    select.value=prefs.voiceURI||'';
+    updateVoiceLabel();
+  }
+
+  function updateVoiceLabel(){
+    const el=$('rf-voice-active-label');if(!el)return;
+    const cur=prefs.voiceURI;
+    if(!cur){el.textContent='Voix active : Automatique (meilleure voix française disponible)';return;}
+    const sys=frenchVoices().find(v=>v.voiceURI===cur);
+    if(sys){el.textContent='Voix active : '+sys.name+' ('+sys.lang+')';return;}
+    el.textContent='Voix active : '+cur;
+  }
+
+  if('speechSynthesis' in window)window.speechSynthesis.addEventListener?.('voiceschanged',refreshVoiceChoices);
+
+  function stopVoice(){
+    isVoiceBusy = false;
+    voiceEpoch++;
+    currentUtterance = null;
+    if (voiceAbortController) {
+      try { voiceAbortController.abort(); } catch (_) {}
+      voiceAbortController = null;
+    }
+    if(voiceSource){
+      try{voiceSource.onended=null;voiceSource.stop();}catch(_){}
+      try{voiceSource.disconnect();}catch(_){}
+      voiceSource=null;
+    }
+    if(voicePlayer){
+      try{voicePlayer.pause();voicePlayer.currentTime=0;}catch(_){}
+      // Lecteur conservé pour compatibilité/aperçu ; la narration UPMC
+      // est désormais jouée via le même AudioContext déverrouillé au clic.
+    }
+    if(previewPlayer){
+      try{previewPlayer.pause();previewPlayer.currentTime=0;previewPlayer.src='';}catch(_){}
+    }
+    duckOtherAudio(false);
+    if('speechSynthesis' in window)window.speechSynthesis.cancel();
+    updateNarrateUI(false);
+  }
+
+  async function unlockVoice(){
+    // Web Audio doit être repris pendant le clic, avant toute attente.
+    const ac=ensureAudio();
+    const audioResume=ac ? ac.resume().catch(()=>null) : Promise.resolve(null);
+    const player = getVoicePlayer();
+    if(!player) return false;
+    try {
+      // Petit WAV silencieux réel : le play() est déclenché pendant le clic
+      // utilisateur et le même élément Audio est ensuite réutilisé par Piper.
+      const sampleRate=8000, samples=800, buffer=new ArrayBuffer(44+samples*2);
+      const view=new DataView(buffer);
+      const write=(o,s)=>{for(let i=0;i<s.length;i++)view.setUint8(o+i,s.charCodeAt(i));};
+      write(0,'RIFF');view.setUint32(4,36+samples*2,true);write(8,'WAVE');
+      write(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);
+      view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);
+      view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,'data');
+      view.setUint32(40,samples*2,true);
+      const blob=new Blob([buffer],{type:'audio/wav'});
+      const url=URL.createObjectURL(blob);
+      player.src=url;
+      player.volume=0;
+      player.currentTime=0;
+      await player.play();
+      player.pause();
+      player.currentTime=0;
+      player.volume=(typeof _isMuted!=='undefined'&&_isMuted)?0:(prefs.voice||1);
+      voiceUnlocked=true;
+      URL.revokeObjectURL(url);
+      // Le contexte a déjà été repris au tout début du geste utilisateur.
+      try{await audioResume;}catch(_){}
+      if(ac && ac.state !== 'running'){
+        try{await ac.resume();}catch(_){voiceUnlocked=false;return false;}
+      }
+      return true;
+    } catch(err) {
+      voiceUnlocked=false;
+      console.warn('Déverrouillage audio narration impossible',err);
+      return false;
+    }
+  }
+  function toggleSpeak(){
+    // Compatibilité avec l'ancien bouton : l'activation reste un vrai geste utilisateur.
+    const ac=ensureAudio();
+    if(ac) ac.resume().catch(()=>{});
+    const playing = isVoiceBusy || currentUtterance || (voicePlayer && !voicePlayer.paused && voicePlayer.currentTime > 0.05 && voicePlayer.src && !voicePlayer.src.startsWith('data:'));
+    if(prefs.narrator || playing){
+      prefs.narrator = false;
+      applyPrefs();
+      stopVoice();
+      tell('Lecture arrêtée.');
+      return;
+    }
+    // Le clic utilisateur déverrouille le lecteur définitif avant toute narration.
+    unlockVoice();
+    prefs.narrator = true;
+    prefs.voiceEngine = 'upmc';
+    if (!window.__elenyaUpmcReady && !window.__elenyaUpmcWarmup && typeof preloadUpmcVoice === 'function') {
+      window.__elenyaUpmcWarmup = preloadUpmcVoice({ui:false});
+    }
+    applyPrefs();
+    tell('Voix activée.');
+    speak();
+  }
+
+  async function onVideoEnded(){
+    if(!prefs.narrator || !data) return;
+    try {
+      document.body.classList.remove('video-playing');
+      if(window.__elenyaUpmcWarmup) await window.__elenyaUpmcWarmup;
+      else if(prefs.voiceEngine === 'upmc' && !window.__elenyaUpmcReady && typeof preloadUpmcVoice === 'function'){
+        window.__elenyaUpmcWarmup = preloadUpmcVoice({ui:false});
+        await window.__elenyaUpmcWarmup;
+      }
+      if(prefs.narrator) {
+        // Le lecteur a été déverrouillé au clic d'activation ; on le réutilise.
+        speak();
+      }
+    } catch(err) {
+      console.warn('Narration après vidéo indisponible', err);
+      isVoiceBusy = false;
+      updateNarrateUI(false);
+      tell('La voix du jeu n’est pas encore prête.');
+    }
+  }
+
+  function speak(){
+    stopVoice();
+    if(!data||!$('accueil-screen').classList.contains('hidden'))return;
+    if(document.body.classList.contains('video-playing'))return;
+    skipTypeWriter();
+    const token = ++voiceEpoch;
+    isVoiceBusy = true;
+    
+    let text = String(data.narrative || '').trim();
+    if (!text) {
+       isVoiceBusy = false;
+       return;
+    }
+    
+    // Strip HTML tags for clean reading
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = text;
+    text = tempDiv.textContent || tempDiv.innerText || text;
+
+    if (prefs.voiceEngine === 'upmc') {
+      piperSpeak(text, token).catch(err => {
+        if (token !== voiceEpoch) return;
+        console.warn('Piper Upmc indisponible', err);
+        tell('Voix du jeu indisponible.');
+        updateNarrateUI(false);
+        isVoiceBusy = false;
+      });
+    } else {
+      fallbackSpeech(text, token);
+    }
+  }
+
+  const PIPER_VOICE_ID = 'fr_FR-upmc-medium';
+  let piperModule = null;
+  function voiceLexicon(raw){
+    return String(raw || '')
+      .replace(/Primaëlys/g, 'Prima lisse')
+      .replace(/Primaelys/g, 'Prima lisse');
+  }
+  function ensurePiper(){
+    if (piperModule) return piperModule;
+    piperModule = import('https://cdn.jsdelivr.net/npm/@realtimex/piper-tts-web/+esm');
+    return piperModule;
+  }
+  async function piperSpeak(text, token){
+    updateNarrateUI(true, window.__elenyaUpmcReady ? 'Lecture…' : 'Chargement de la voix…');
+    if (window.__elenyaUpmcWarmup) await window.__elenyaUpmcWarmup;
+    else if (!window.__elenyaUpmcReady && typeof preloadUpmcVoice === 'function') {
+      window.__elenyaUpmcWarmup = preloadUpmcVoice({ui:false});
+      await window.__elenyaUpmcWarmup;
+    }
+
+    const tts = await ensurePiper();
+    if (token !== voiceEpoch) return;
+
+    if (!window.__elenyaUpmcReady && tts.stored) {
+      const have = await tts.stored();
+      window.__elenyaUpmcReady = Array.isArray(have) && have.some(id => String(id).includes('upmc'));
+    }
+
+    const spoken = voiceLexicon(text);
+    const pieces = segmentNarrative(spoken, 420);
+    const ac = ensureAudio();
+    if (!ac) throw new Error('Web Audio indisponible');
+    await ac.resume();
+
+    const predictPiece = (piece) => (
+      window.__elenyaUpmcSession && window.__elenyaUpmcSession.predict
+        ? window.__elenyaUpmcSession.predict(piece)
+        : tts.predict({ text: piece, voiceId: PIPER_VOICE_ID })
+    );
+
+    let nextWav = pieces.length ? predictPiece(pieces[0]) : null;
+
+    async function say(index){
+      if (!nextWav || token !== voiceEpoch) return false;
+
+      // Lance la génération du bloc suivant pendant que celui-ci est préparé/lu.
+      const currentWav = await nextWav;
+      if (token !== voiceEpoch) return false;
+
+      const followingWav = index + 1 < pieces.length
+        ? predictPiece(pieces[index + 1])
+        : null;
+
+      const arrayBuffer = await currentWav.arrayBuffer();
+      const audioBuffer = await ac.decodeAudioData(arrayBuffer.slice(0));
+      if (token !== voiceEpoch) return false;
+
+      duckOtherAudio(true);
+      const source = ac.createBufferSource();
+      const gain = voiceGain || ac.createGain();
+      if (!voiceGain) {
+        gain.connect(ac.destination);
+        voiceGain = gain;
+      }
+      gain.gain.value = (typeof _isMuted !== 'undefined' && _isMuted) ? 0 : (prefs.voice || 1);
+      source.buffer = audioBuffer;
+      source.connect(gain);
+      voiceSource = source;
+
+      const finished = new Promise((resolve, reject) => {
+        let settled = false;
+        const done = () => {
+          if (settled) return;
+          settled = true;
+          try { source.disconnect(); } catch (_) {}
+          if (voiceSource === source) voiceSource = null;
+          resolve(true);
+        };
+        source.onended = done;
+        try {
+          source.start(0);
+        } catch (err) {
+          settled = true;
+          try { source.disconnect(); } catch (_) {}
+          if (voiceSource === source) voiceSource = null;
+          reject(err);
+        }
+      });
+
+      // Le prochain bloc est déjà en génération pendant la lecture.
+      nextWav = followingWav;
+      await finished;
+      window.__elenyaUpmcReady = true;
+      return token === voiceEpoch;
+    }
+
+    for (let i = 0; i < pieces.length; i++) {
+      if (token !== voiceEpoch) return;
+      const cont = await say(i);
+      if (!cont) return;
+    }
+
+    if (token !== voiceEpoch) return;
+    isVoiceBusy = false;
+    duckOtherAudio(false);
+    updateNarrateUI(false);
+    tell('Lecture terminée. À toi de choisir.');
+  }
+
+
+  function fallbackSpeech(text, token){
+    if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){
+      updateNarrateUI(false);
+      tell('Lecture vocale indisponible dans ce navigateur. Le texte reste accessible.');
+      return;
+    }
+    updateNarrateUI(true, 'Synthèse vocale du navigateur…');
+    const fragments=(text.match(/[^.!?\n]+[.!?]?/g)||[text]).flatMap(s=>s.match(/.{1,220}(?:\s|$)|.{1,220}/g)||[]).map(x=>x.trim()).filter(Boolean);
+    const pieces=[];for(const fragment of fragments){const last=pieces.length-1;if(last>=0&&pieces[last].length+fragment.length<220)pieces[last]+=' '+fragment;else pieces.push(fragment);}
+    
+    const fr=frenchVoices();
+    const selected=fr.find(v=>v.voiceURI===prefs.voiceURI)||fr[0];
+    let index=0;
+    
+    function next(){
+      if(token!==voiceEpoch||index>=pieces.length||document.hidden)return;
+      const piece=pieces[index++];
+      const utterance=new SpeechSynthesisUtterance(piece);
+      currentUtterance=utterance;
+      utterance.lang=selected?.lang||'fr-FR';
+      utterance.rate=prefs.rate || 1;
+      utterance.pitch=1.0;
+      utterance.volume=_isMuted?0:prefs.voice;
+      if(selected)utterance.voice=selected;
+      utterance.onstart=()=>{if(token===voiceEpoch)duckOtherAudio(true);};
+      utterance.onend=()=>{
+        if(token!==voiceEpoch)return;
+        if(index>=pieces.length){
+          currentUtterance=null;
+          duckOtherAudio(false);
+          updateNarrateUI(false);
+          tell('Lecture terminée. À toi de choisir.');
+        }else setTimeout(next, 100);
+      };
+      utterance.onerror=()=>{
+        if(token===voiceEpoch){
+          currentUtterance=null;
+          duckOtherAudio(false);
+          updateNarrateUI(false);
+          tell('La voix n’a pas démarré. Réessaie « Lire la scène ».');
+        }
+      };
+      try{window.speechSynthesis.speak(utterance);}catch(_){
+        currentUtterance=null;
+        duckOtherAudio(false);
+        updateNarrateUI(false);
+        tell('La voix n’a pas démarré.');
+      }
+    }
+    next();
+  }
+
+  function scheduleAuto(){clearTimeout(autoTimer);if(!prefs.auto||!data||data.isEnd)return;
+    const token=requestEpoch;autoTimer=setTimeout(()=>{if(token!==requestEpoch||busy||document.hidden||!$('rf-dialog').hidden||currentUtterance||isTyping||document.body.classList.contains('video-playing')){scheduleAuto();return;}
+      const choices=data.choices||[];if(choices.length===1&&/^continuer[.\s…]*$/i.test(choices[0].text)&&!choices[0].irreversible&&choices[0].importance==='minor')document.querySelector('#choices .choice-btn')?.click();
+    },Math.max(4500,String(data.narrative||'').split(/\s+/).length/3.2*1000));
+  }
+  function ensureAudio(){if(audioContext)return audioContext;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;audioContext=new AC();return audioContext;}
+  function noiseBuffer(ac,seconds){const buf=ac.createBuffer(1,Math.round(ac.sampleRate*seconds),ac.sampleRate),samples=buf.getChannelData(0);let prev=0;for(let i=0;i<samples.length;i++){prev=(prev+Math.random()*.04-.02)/1.02;samples[i]=prev*4;}return buf;}
+  function setAmbience(kind){if(!audioContext)return;if(ambienceKind===kind){if(ambientGain)ambientGain.gain.setTargetAtTime(_isMuted?0:prefs.ambience*.12*duckLevel,audioContext.currentTime,.2);return;}
+    if(ambientNode){try{ambientNode.stop()}catch(_){}ambientNode.disconnect();}ambientFilter?.disconnect();ambientGain?.disconnect();ambientNode=null;ambientGain=null;ambientFilter=null;ambienceKind=kind;if(kind==='quiet')return;
+    const source=audioContext.createBufferSource(),filter=audioContext.createBiquadFilter(),gain=audioContext.createGain();source.buffer=noiseBuffer(audioContext,4);source.loop=true;filter.type='lowpass';filter.frequency.value=kind==='fire'?1400:450;gain.gain.value=_isMuted?0:prefs.ambience*.12*duckLevel;source.connect(filter).connect(gain).connect(audioContext.destination);source.start();ambientNode=source;ambientGain=gain;ambientFilter=filter;
+  }
+  function effect(kind){if(_isMuted||!prefs.effects)return;const ac=ensureAudio();if(!ac)return;ac.resume().catch(()=>{});if(!effectsBus){effectsBus=ac.createGain();effectsBus.connect(ac.destination);}effectsBus.gain.value=prefs.effects*duckLevel;const now=ac.currentTime,duration=kind==='ice-storm'?.85:kind==='ice-lance'?.4:.16;
+    const source=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();source.buffer=noiseBuffer(ac,duration);filter.type='highpass';filter.frequency.value=kind==='ui'?2600:900;gain.gain.setValueAtTime((kind==='ui'?.12:.6),now);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);source.connect(filter).connect(gain).connect(effectsBus);source.start();source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect()};
+    if(prefs.vibration&&kind!=='ui'&&navigator.vibrate)navigator.vibrate(kind==='ice-storm'?[18,30,14]:12);
+  }
+  function setNarrationForNewGame(enabled){
+    stopVoice();
+    prefs.narrator = false;
+    prefs.voiceEngine = 'classic';
+    prefs.onboarded_narration = true;
+    applyPrefs();
+  }
+  function applyPrefs(){
+    CONFIG.BGM_VOLUME=prefs.music;
+    document.body.classList.toggle('rf-contrast',prefs.contrast);
+    document.body.classList.toggle('rf-reduce-motion',!prefs.motion);
+    const bgm=$('bgm');
+    if(bgm&&!bgm._fadeInterval)bgm._baseVolume=prefs.music;
+    syncAudioMix();
+    write('ef_preferences_v524',prefs);
+  }
+  function open(title,html){stopVoice();clearTimeout(autoTimer);modalFocus=document.activeElement;$('rf-dialog-title').textContent=title;$('rf-dialog-content').innerHTML=html;$('rf-dialog').hidden=false;$('rf-close').focus();}
+  function close(){
+    if($('rf-dialog').hidden)return;
+    previewEpoch++;
+    if(previewAbortController){try{previewAbortController.abort();}catch(_){}previewAbortController=null;}
+    if(previewPlayer){try{previewPlayer.pause();previewPlayer.currentTime=0;previewPlayer.src='';}catch(_){}}
+    if('speechSynthesis' in window)window.speechSynthesis.cancel();
+    if(galleryPlayer){galleryPlayer.pause();galleryPlayer=null;if(data)playAudioForScene(data.mood||'exploration')}
+    $('rf-dialog').hidden=true;
+    if(modalFocus?.isConnected)modalFocus.focus();
+    scheduleAuto();
+  }
+
+  // Modal des paramètres enrichi avec aperçu vocal et gestion du cache
+  function settings(){
+    const techVersion=escapeHtml(document.documentElement.dataset.engineVersion || '52.5.0');
+    const techEngine=escapeHtml(document.documentElement.dataset.engineLabel || 'ELENYA — L’Héritage de Primaëlys');
+    open('Paramètres',`
+<section>
+  <h3>Audio & Narration</h3>
+  ${[['music','Musique'],['ambience','Ambiances'],['effects','Effets']].map(([k,t])=>`
+    <label>${t}<input data-pref="${k}" aria-label="Volume ${t}" type="range" min="0" max="1" step=".05" value="${prefs[k]}"></label>
+  `).join('')}
+
+
+</section>
+
+<section>
+  <h3>Lecture et accessibilité</h3>
+  ${[['contrast','Contraste renforcé'],['motion','Animations et effets visuels'],['vibration','Vibrations légères'],['auto','Passer automatiquement les simples « Continuer » après lecture']].map(([k,t])=>`
+    <label><input data-pref="${k}" type="checkbox" ${prefs[k]?'checked':''}>${t}</label>
+  `).join('')}
+  <p class="rf-muted">Flèches haut/bas pour choisir, Entrée pour valider. Les décisions sont définitives pendant la partie ; utilise une sauvegarde pour conserver un point de reprise.</p>
+  <button type="button" id="rf-text-less">Texte −</button> <button type="button" id="rf-text-more">Texte +</button>
+</section>
+<section>
+  <h3>Informations techniques</h3>
+  <p class="rf-muted">Version : ${techVersion}<br>Moteur : ${techEngine}</p>
+</section>
+`);
+
+    $('rf-dialog-content').querySelectorAll('[data-pref]').forEach(el => {
+      el.addEventListener('input', () => {
+        prefs[el.dataset.pref] = el.type === 'checkbox'
+          ? el.checked
+          : ['voiceURI','voiceStyle','voiceDuck'].includes(el.dataset.pref)
+            ? el.value
+            : Number(el.value);
+        updateVoiceLabel();
+        applyPrefs();
+        if (el.dataset.pref === 'narrator' && !prefs.narrator) stopVoice();
+      });
+    });
+
+    $('rf-text-less').onclick = () => textSizeStep(-1);
+    $('rf-text-more').onclick = () => textSizeStep(1);
+
+      }
+
+  function loadExplorer(){if(explorer)return Promise.resolve(explorer);return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(r=>{explorer=r;resolve(r)}).withFailureHandler(reject).serverGetExplorer());}
+  const known=(s)=>!!coverage.scenes[s.mode+':'+s.id]||_visitedScenes.has(s.id)||_visitedScenes.has(s.sceneNumber);
+  async function map(){open('Arbre des parcours','<p>Chargement des scènes…</p>');try{const result=await loadExplorer();if($('rf-dialog').hidden||$('rf-dialog-title').textContent!=='Arbre des parcours')return;
+    const all=result.scenes,seen=all.filter(known),ends=all.filter(s=>s.end),found=ends.filter(s=>known(s)||getAllAchievements().includes(s.achievement));
+    $('rf-dialog-content').innerHTML=`<div class="rf-progress"><span>${seen.length}/${all.length} scènes découvertes</span><span>${found.length}/${ends.length} fins découvertes</span><span>${Object.keys(coverage.edges).length} choix parcourus depuis la mise à jour</span></div><p class="rf-muted">Les titres et destinations inconnus restent masqués. Cette carte consulte les routes ; elle ne modifie pas la partie.</p>${['classic','ngplus'].map(m=>`<details ${m===mode()?'open':''}><summary>${m==='classic'?'Classique':'Nouvelle Partie+'}</summary>${all.filter(s=>s.mode===m).map(s=>`<article class="rf-map-node" id="rf-node-${escapeHtml(s.id)}"><h3>${known(s)?escapeHtml(s.title):'Scène non découverte'} <span class="rf-muted">· Acte ${s.chapter}</span></h3>${known(s)?`<ul class="rf-map-choices">${s.choices.map(c=>{const target=all.find(n=>n.mode===m&&n.id===c.next),visited=!!coverage.edges[m+':'+s.id+':'+c.key];return `<li>${visited?'✓':'○'} ${escapeHtml(c.text)} → ${target&&known(target)?`<button type="button" data-node="${escapeHtml(target.id)}">${escapeHtml(target.title)}</button>`:c.next==='RETURN'?'Retour au parcours':c.next==='END'?'Fin du parcours':'Destination à découvrir'}${c.conditional?' · sous condition':''}</li>`}).join('')}</ul>`:''}</article>`).join('')}</details>`).join('')}`;
+    $('rf-dialog-content').querySelectorAll('[data-node]').forEach(b=>b.onclick=()=>{const node=$('rf-node-'+b.dataset.node);node.closest('details').open=true;node.scrollIntoView({block:'start',behavior:prefs.motion?'smooth':'auto'})});
+  }catch(_){$('rf-dialog-content').textContent='La carte n’a pas pu être chargée. Réessaie après reconnexion.'}}
+
+  const codexEntries=[
+    ['Le réveil','ACTE1_01_REVEIL','Elenya se réveille dans le givre, avec une mémoire lacunaire. Son identité et la nature de son pouvoir sont les premières questions du parcours.'],
+    ['Kaelen','ACTE1_02_RENCONTRE_1','Kaelen appartient au versant de l’Ombre. La proximité ne suffit pas à effacer ses obligations : ses gestes et ses décisions comptent autant que ses déclarations.'],
+    ['Alistair','ACTE1_02_RENCONTRE_1','Alistair porte la lumière et le sceau de l’Ordre. Protéger Elenya et respecter sa liberté ne sont pas toujours la même décision.'],
+    ['Fen','ACTE1_03_FAMILIER_1','Le furet accompagne Elenya. Ses réactions et son venin occupent une place singulière dans son rapport au givre et aux souvenirs.'],
+    ['La fresque','ACTE1_04_FRESQUE','La pierre montre une souveraine et le Gel. Ce témoignage est une trace à interpréter, pas une connaissance immédiate de toute l’histoire.'],
+    ['Lyra','ACTE3_03_LA_SIRENE','Lyra raconte que l’Ordre a brisé sa voix pour en faire une arme. Reconnaître son histoire ne signifie pas renoncer à toute prudence.'],
+    ['Le sceau Leonhart','NGP_05B_SCEAU','Le Cycle Brisé permet d’examiner le mécanisme du sceau et de distinguer la foi d’Alistair du droit que ce sceau prétend exercer sur Elenya.'],
+    ['Les contrats','NGP_05A_ARCHIVES','Les copies du contrat permettent de distinguer les ordres hérités des décisions personnelles. Conserver une preuve ne donne pas le droit de posséder celui qu’elle concerne.'],
+    ['Le Cycle Brisé','NGP_10_ORAYA','Oraya explique que le rituel a rendu le cycle possible. Le réduire à un coupable unique empêcherait de voir ce qui le perpétue.'],
+    ['Le Brasier','NGP_13_BRASIER','L’Entité de Calcination pousse au recommencement. Les moyens de lui résister n’ont pas tous le même coût pour Elenya.']
+  ];
+
+  async function codex(){open('Codex et chronologie','<p>Chargement…</p>');try{const result=await loadExplorer();if($('rf-dialog').hidden||$('rf-dialog-title').textContent!=='Codex et chronologie')return;const available=id=>result.scenes.some(s=>s.id===id&&known(s));
+    $('rf-dialog-content').innerHTML=codexEntries.filter(e=>available(e[1])).map(([title,id,body])=>`<section><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></section>`).join('')||'<p>Les premières entrées apparaîtront au fil de tes découvertes.</p>';
+    if(data?.arcObjective)$('rf-dialog-content').insertAdjacentHTML('afterbegin',`<section><h3>Objectif de l’acte en cours</h3><p>${escapeHtml(data.arcObjective)}</p></section>`);
+    const scenes=result.scenes.filter(known).sort((a,b)=>a.chapter-b.chapter);$('rf-dialog-content').insertAdjacentHTML('beforeend',`<details><summary>Scènes découvertes par acte</summary><p class="rf-muted">Classement par acte, pas chronologie absolue des souvenirs.</p>${scenes.map(s=>`<p>${s.mode==='ngplus'?'NG+':'Classique'} · Acte ${s.chapter} — ${escapeHtml(s.title)}</p>`).join('')}</details>`);
+  }catch(_){$('rf-dialog-content').textContent='Codex indisponible. Réessaie après reconnexion.'}}
+
+  function music(){const urls=[...new Set(Object.values(CONFIG.AUDIO_MAP).flat())];open('Musiques découvertes',urls.map((url,i)=>`<div class="rf-track"><span>${coverage.music.includes(url)?escapeHtml(decodeURIComponent(url.split('/').pop().replace(/\.mp3$/,'').replace(/-/g,' '))):'Morceau non découvert'}</span><button type="button" data-track="${i}" ${coverage.music.includes(url)?'':'disabled'}>Écouter</button></div>`).join('')+'<button type="button" id="rf-music-stop">Arrêter</button>');
+    $('rf-dialog-content').querySelectorAll('[data-track]').forEach(b=>b.onclick=()=>{if(galleryPlayer)galleryPlayer.pause();pauseBgm();galleryPlayer=new Audio(urls[Number(b.dataset.track)]);galleryPlayer.volume=_isMuted?0:prefs.music*duckLevel;galleryPlayer.play().catch(()=>tell('Ce morceau n’a pas pu être chargé.'));});$('rf-music-stop').onclick=()=>{galleryPlayer?.pause()};
+  }
+  function pauseBgm(){const bgm=$('bgm');if(bgm._fadeInterval){clearInterval(bgm._fadeInterval);bgm._fadeInterval=null;}bgm.pause();_currentAudioMood=null;_currentAudioUrl=null;}
+  function resumeBgm(){if(data&&!$('gallery-lightbox').classList.contains('show')&&!galleryPlayer&&$('accueil-screen').classList.contains('hidden'))playAudioForScene(data.mood||'exploration');}
+  function noteTrack(url){if(url&&!coverage.music.includes(url)){coverage.music.push(url);write('ef_coverage_v524',coverage)}}
+
+  async function galleryExtras(){try{const result=await loadExplorer();if(!$('gallery-modal').classList.contains('show'))return;const unlocked=read('ef_gallery',[]);for(const bg of result.backgrounds){if($('gallery-grid').querySelector('[data-refonte="'+bg.url.split('/').pop()+'"]'))continue;const item=document.createElement('div');item.dataset.refonte=bg.url.split('/').pop();item.className='gallery-item'+(unlocked.includes(bg.url)?'':' locked');if(unlocked.includes(bg.url)){item.innerHTML=`<img src="${bg.url}" alt="${escapeHtml(bg.name)}"><span class="gallery-label">Nouveau décor</span>`;item.tabIndex=0;item.setAttribute('role','button');item.onclick=()=>openGalleryMedia(bg.url,bg.name,'image');item.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();item.click()}};}else item.innerHTML=`<div class="gallery-locked-name">${escapeHtml(bg.name)}</div><span class="gallery-label">Nouveau décor</span>`;$('gallery-grid').appendChild(item)} if(typeof updateGalleryProgress==='function')updateGalleryProgress();}catch(_){tell('Les nouveaux décors n’ont pas pu être chargés dans la galerie. Les autres restent consultables.')}}
+
+  function toggleTools(){toolsOpen=!toolsOpen;$('rf-tools').hidden=!toolsOpen||!$('accueil-screen').classList.contains('hidden');$('btn-rf-tools')?.classList.toggle('active',toolsOpen);}
+  function cleanup(){requestEpoch++;busy=false;pending=null;data=null;toolsOpen=false;stopVoice();close();clearTimeout(autoTimer);if(audioContext)audioContext.suspend().catch(()=>{});$('rf-tools').hidden=true;$('rf-reveal').hidden=true;$('rf-ground-label').hidden=true;document.body.classList.remove('rf-ui-hidden','rf-ground-frost','rf-ice-aftermath','rf-spectral-fen');
+    if(document.getElementById('rf-snow-overlay-el')) var el = document.getElementById('rf-snow-overlay-el'); if(el && el.parentNode) el.parentNode.removeChild(el); else if(el && el.remove) el.remove();document.querySelectorAll('.header,.body-content,.footer').forEach(el=>el.inert=true);hideOverlay();tell('');}
+
+  $('rf-settings').onclick=settings;$('rf-map').onclick=map;$('rf-codex').onclick=codex;$('rf-close').onclick=close;
+  $('rf-hide').onclick=()=>{document.body.classList.add('rf-ui-hidden');$('rf-reveal').hidden=false;$('rf-reveal').focus()};$('rf-reveal').onclick=()=>{document.body.classList.remove('rf-ui-hidden');$('rf-reveal').hidden=true;$('rf-hide').focus()};
+
+  document.querySelector('.body-content').before($('rf-tools'),$('rf-live'),$('rf-ground-label'));
+  for(const [text,handler] of [['Paramètres',settings],['Musiques',music]]){const b=document.createElement('button');b.type='button';b.className='accueil-btn';b.textContent=text;b.onclick=handler;document.querySelector('.accueil-menu').appendChild(b);}
+
+  document.addEventListener('keydown',e=>{
+    if(busy&&['Enter',' '].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();return;}
+    if(!$('rf-dialog').hidden){e.stopImmediatePropagation();if(e.key==='Escape'){e.preventDefault();close();return;}if(e.key==='Tab'){const nodes=[...$('rf-dialog').querySelectorAll('button:not(:disabled),input:not(:disabled),select,summary')].filter(n=>n.offsetParent!==null),first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}return;}
+    if(e.target.matches('input,textarea,select')||e.target.isContentEditable||document.querySelector('[id$="-modal"].show,#gallery-lightbox.show,#history-drawer.open'))return;
+    if(document.body.classList.contains('rf-ui-hidden')){e.stopImmediatePropagation();if(e.key==='Escape')$('rf-reveal').click();return;}
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!$('accueil-screen').classList.contains('hidden'))return;e.preventDefault();e.stopImmediatePropagation();if(isTyping)skipTypeWriter();const choices=[...document.querySelectorAll('#choices button:not(:disabled)')],index=choices.indexOf(document.activeElement),next=(index+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;choices[next]?.focus();}
+  },true);
+
+  document.addEventListener('click',e=>{if(e.target.closest('button')){const ac=ensureAudio();ac?.resume().catch(()=>{});setAmbience(data?.presentation?.ambience||'quiet');effect('ui');}},true);
+
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){if(data)updateStats(false);stopVoice();clearTimeout(autoTimer);audioContext?.suspend().catch(()=>{});}else{const s=active();if(s.currentSceneId){s.sessionStartedAt=Date.now();setActiveState(s)}scheduleAuto();}});
+
+  document.querySelectorAll('.header,.body-content,.footer').forEach(el=>el.inert=true);
+
+  applyPrefs();restoreHistory();
+
+  return { open, close, prefs,scene,prepareChoice,settle,rollback,resetHistory,restoreHistory,cleanup,speak,stopVoice,toggleSpeak,unlockVoice,onVideoEnded,noteTrack,effect,applyPrefs,setNarrationForNewGame,
+    get audioFactor(){return duckLevel},get busy(){return busy},get epoch(){return requestEpoch},get current(){return data},settings,map,codex,music,galleryExtras,pauseBgm,resumeBgm,toggleTools,tell,write,read,coverage
+  };
+})();
+
+const originalRender=renderScene;
+renderScene=function(data){if(!document.getElementById('accueil-screen').classList.contains('hidden'))return;if(data.renderedState)setActiveState(data.renderedState);originalRender(data);RF.scene(data);};
+const originalMenu=returnToMenu;
+returnToMenu=function(){stopAmbientMedia(false);RF.cleanup();originalMenu();};
+const originalStopMedia=stopAmbientMedia;
+stopAmbientMedia=async function(restore=true){
+  originalStopMedia(restore);
+  if(restore&&RF.prefs.narrator&&RF.onVideoEnded) await RF.onVideoEnded();
+};
+const originalLoadSave=loadSave;
+loadSave=function(slot){RF.cleanup();RF.resetHistory();originalLoadSave(slot);};
+const originalMute=toggleMute;
+toggleMute=function(){originalMute();RF.applyPrefs();if(_isMuted)RF.stopVoice();};
+const originalGallery=showGallery;
+showGallery=function(){originalGallery();RF.galleryExtras();};
+const musicButton=document.createElement('button');musicButton.type='button';musicButton.className='modal-close';musicButton.textContent='Musiques';musicButton.onclick=()=>RF.music();document.querySelector('#gallery-modal .modal-header').appendChild(musicButton);
+const originalGalleryMedia=openGalleryMedia,originalCloseGallery=closeGalleryImage;
+openGalleryMedia=function(url,name,type){RF.stopVoice();if(type==='video')RF.pauseBgm();originalGalleryMedia(url,name,type);};
+closeGalleryImage=function(event){originalCloseGallery(event);RF.resumeBgm();};
+const originalSaveModal=showSaveModal;
+showSaveModal=function(){
+  originalSaveModal();
+  for(const [suffix,label] of [['before_choice','Avant le dernier choix'],['autosave','Sauvegarde automatique']]){
+    const saved=RF.read('elenya_'+getCurrentMode()+'_'+suffix,null);
+    if(!saved?.state?.currentSceneId)continue;
+    const row=document.createElement('div');
+    row.className='save-item';
+    const title=document.createElement('span');
+    title.textContent=label+' — '+(saved.sceneName||saved.state.currentSceneId);
+    row.appendChild(title);
+    const b=document.createElement('button');
+    b.className='save-btn';
+    b.textContent='Charger';
+    b.onclick=()=>{
+      RF.cleanup();
+      RF.resetHistory();
+      const restored=JSON.parse(JSON.stringify(saved.state));
+      restored.achievements=[...new Set([...getAllAchievements(),...(restored.achievements||[])])];
+      setActiveState(restored);
+      hideSaveModal();
+      document.getElementById('accueil-screen').classList.add('hidden');
+      document.body.classList.add('game-live');
+      renderSceneDataFromServer(restored);
+    };
+    row.appendChild(b);
+    document.getElementById('save-list').appendChild(row);
+  }
+};
+</script>

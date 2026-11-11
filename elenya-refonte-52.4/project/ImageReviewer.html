@@ -1,0 +1,449 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ELENYA — Tri des images</title>
+  <style>
+    :root{--bg:#070a12;--panel:#0e1422;--panel2:#111a2d;--line:#273552;--text:#edf3ff;--muted:#94a7cb;--accent:#8db6ff;--ok:#65d9a8;--warn:#f2c46d;--bad:#ff8b9c}
+    *{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+    button,input,select,textarea{font:inherit}.app{height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+    header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid var(--line);background:#0a0f1b;z-index:5}
+    header strong{font-family:Georgia,serif;font-size:18px}header span{font-size:11px;color:var(--muted)}.spacer{flex:1}
+    .btn{border:1px solid #3b4d72;background:#121c31;color:#eaf1ff;border-radius:9px;padding:8px 11px;cursor:pointer}.btn:hover{background:#1a2948}.btn.primary{border-color:#6183c6;background:#20365e}.btn.keep{border-color:#3b8d6e;background:#15372c}.btn.need{border-color:#9b7534;background:#3b2d16}
+    .layout{min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr) 360px}.scenes,.assets{min-height:0;overflow:hidden;background:#0b101c}.scenes{border-right:1px solid var(--line)}.assets{border-left:1px solid var(--line)}
+    .pane-head{padding:10px;border-bottom:1px solid var(--line);display:grid;gap:8px}.search,.filter,textarea{width:100%;background:#080d18;border:1px solid #2c3a58;color:var(--text);border-radius:8px;padding:8px}
+    .scene-list,.asset-list{height:calc(100% - 105px);overflow:auto;padding:7px}.scene{display:grid;grid-template-columns:9px 1fr;gap:8px;padding:8px;border:1px solid transparent;border-radius:9px;cursor:pointer}.scene:hover{background:#111a2b}.scene.active{background:#16233d;border-color:#46618f}
+    .dot{width:8px;height:8px;border-radius:50%;background:#45546f;margin-top:5px}.dot.keep{background:var(--ok)}.dot.replace{background:var(--accent)}.dot.needs-new{background:var(--warn)}.dot.partial{background:#b28cff}
+    .scene b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scene small{display:block;color:var(--muted);font-size:10px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    main{min-width:0;min-height:0;overflow:auto;padding:16px 18px 50px}.hero{display:flex;gap:10px;align-items:flex-start}.hero .titles{flex:1}.eyebrow{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#93a8d1}.hero h1{font-family:Georgia,serif;margin:4px 0 3px;font-size:26px}.hero p{margin:0;color:var(--muted);font-size:11px}
+    .nav{display:flex;gap:6px}.stage{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#04060b;min-height:420px;position:relative;display:grid;place-items:center}.stage img{display:block;width:100%;height:min(62vh,620px);object-fit:contain;background:#04060b}.empty{padding:40px;color:var(--muted);text-align:center}
+    .targetbar{display:flex;gap:7px;overflow:auto;padding:12px 0 0}.target-tab{flex:none;border:1px solid #344563;background:#0c1423;color:#b7c8e8;border-radius:999px;padding:7px 10px;font-size:10px;cursor:pointer;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.target-tab.active{border-color:#86adf0;background:#1b3156;color:#fff}.target-tab .mark{font-weight:700;margin-right:5px}.stage-badge{position:absolute;left:10px;top:10px;background:rgba(4,7,14,.85);border:1px solid #364766;border-radius:999px;padding:5px 8px;font-size:10px}
+    .variants{display:flex;gap:8px;overflow:auto;padding:10px 0}.variant{flex:none;width:150px;border:1px solid #2b3956;border-radius:9px;overflow:hidden;background:#0b111e;cursor:pointer}.variant.active{border-color:#78a1e7;box-shadow:0 0 0 1px #78a1e7 inset}.variant img{display:block;width:100%;height:82px;object-fit:cover;background:#05070b}.variant div{padding:6px;font-size:9px;color:#aabbdc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .context{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}.card{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}.card h3{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#a9bade;margin:0;padding:10px 12px;border-bottom:1px solid var(--line)}.card-body{padding:10px 12px}.choice{border:1px solid transparent;border-bottom-color:#202c45;padding:8px;border-radius:8px}.choice:last-child{border-bottom-color:transparent}.choice.active{border-color:#4f6fa9;background:#121d33}.choice b{font-size:11px;color:#c7d7f7}.choice span{font-size:12px;line-height:1.4}.choice a{font-size:10px;color:#9ec0ff;cursor:pointer;text-decoration:underline;margin-left:6px}.choice-actions{display:flex;gap:6px;margin-top:7px}.choice-edit{border:1px solid #40577f;background:#14213a;color:#dbe8ff;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer}.choice-visual-count{font-size:9px;color:#879bc1}
+    textarea{min-height:110px;resize:vertical;line-height:1.4}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.status-line{font-size:10px;color:var(--muted);margin-top:8px}.selected{font-size:11px;color:#bfd2f7;word-break:break-all;margin-top:8px}
+    .asset-list{display:grid;grid-template-columns:1fr 1fr;gap:7px;align-content:start}.asset{border:1px solid #26344f;border-radius:9px;overflow:hidden;background:#0c1322;cursor:pointer}.asset:hover{border-color:#5f7caf}.asset.active{border-color:#91b6ff;box-shadow:0 0 0 1px #91b6ff inset}.asset-thumb{width:100%;height:112px;display:block;background:#08101d center/cover no-repeat}.asset-label{padding:6px;font-size:9px;color:#b4c3df;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .asset-footer{padding:9px;border-top:1px solid var(--line);background:#0a0f1b}.asset-footer .selected{max-height:36px;overflow:hidden}.counter{font-size:10px;color:var(--muted)}
+    .loading{height:100%;display:grid;place-items:center;color:var(--muted);text-align:center;padding:30px}.hidden{display:none!important}.toast{position:fixed;right:16px;bottom:16px;background:#111a2d;border:1px solid #5370a5;border-radius:10px;padding:9px 12px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:20}.toast.show{opacity:1;transform:none}
+    @media(max-width:1050px){.layout{grid-template-columns:220px 1fr}.assets{position:fixed;right:0;top:52px;bottom:0;width:min(390px,92vw);z-index:10;transform:translateX(101%);transition:.2s;box-shadow:-10px 0 30px rgba(0,0,0,.45)}.assets.open{transform:none}.context{grid-template-columns:1fr}.asset-toggle{display:inline-block!important}}
+    @media(max-width:700px){.layout{display:block;overflow:auto}.scenes{height:230px;border-right:0;border-bottom:1px solid var(--line)}.scene-list{height:170px}.app{overflow:auto}.layout{min-height:calc(100vh - 50px)}main{overflow:visible}.stage{min-height:280px}.stage img{height:48vh}.hero{display:block}.nav{margin-top:10px}.assets{top:96px}.variant{width:125px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <strong>ELENYA · TRI IMAGES</strong>
+    <span id="build">Chargement…</span>
+    <div class="spacer"></div>
+    <span id="progress">—</span>
+    <button class="btn" id="importBtn">Importer JSON</button>
+    <input class="hidden" type="file" id="importFile" accept=".json,application/json">
+    <button class="btn" id="exportBtn">Exporter JSON</button>
+    <button class="btn asset-toggle hidden" id="assetToggle">Images</button>
+  </header>
+
+  <div class="layout">
+    <aside class="scenes">
+      <div class="pane-head">
+        <input class="search" id="sceneSearch" placeholder="Scène, titre, choix…">
+        <select class="filter" id="actFilter"><option value="">Tous les actes</option></select>
+      </div>
+      <div class="scene-list" id="sceneList"></div>
+    </aside>
+
+    <main>
+      <div class="loading" id="loading">Chargement des scènes et des visuels actuels…</div>
+      <section id="view" class="hidden">
+        <div class="hero">
+          <div class="titles">
+            <div class="eyebrow" id="sceneMeta"></div>
+            <h1 id="sceneTitle"></h1>
+            <p id="sceneId"></p>
+          </div>
+          <div class="nav">
+            <button class="btn" id="prevBtn">← Précédente</button>
+            <button class="btn" id="nextBtn">Suivante →</button>
+          </div>
+        </div>
+
+        <div class="targetbar" id="targetBar"></div>
+
+        <div class="stage">
+          <div class="stage-badge" id="previewBadge">Image actuelle</div>
+          <div class="empty" id="emptyPreview">Aucune image détectée pour cette scène.</div>
+          <img id="preview" class="hidden" alt="">
+        </div>
+
+        <div class="variants" id="variants"></div>
+
+        <div class="context">
+          <div class="card">
+            <h3>Choix de la scène</h3>
+            <div class="card-body" id="choices"></div>
+          </div>
+          <div class="card">
+            <h3 id="validationTitle">Validation visuelle — Scène</h3>
+            <div class="card-body">
+              <textarea id="comment" placeholder="Ex. L'image ne correspond pas : Kaelen doit rester dans la cour, pas près d'un feu. Il faut Elenya à gauche, Alistair en arrière-plan…"></textarea>
+              <div class="selected" id="selectedLabel">Aucune image de remplacement sélectionnée.</div>
+              <div class="actions">
+                <button class="btn keep" id="keepBtn">Garder l'actuelle</button>
+                <button class="btn primary" id="replaceBtn">Utiliser l'image sélectionnée</button>
+                <button class="btn need" id="needBtn">Aucune ne convient</button>
+                <button class="btn" id="saveCommentBtn">Enregistrer le commentaire</button>
+              </div>
+              <div class="status-line" id="saveState"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="assets" id="assetsPane">
+      <div class="pane-head">
+        <input class="search" id="assetSearch" placeholder="Rechercher dans les images FF10…">
+        <select class="filter" id="assetGroup"><option value="">Toutes les images</option></select>
+        <div class="counter" id="assetCount"></div>
+      </div>
+      <div class="asset-list" id="assetList"></div>
+      <div class="asset-footer">
+        <button class="btn primary" id="useAssetBtn" style="width:100%">Prévisualiser cette image</button>
+        <div class="selected" id="assetSelected">Aucune image sélectionnée.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const state={scenes:[],byId:new Map(),assets:[],saved:{},filtered:[],current:null,currentTarget:'scene',currentVisual:null,candidate:null,datasetId:'',buildVersion:''};
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__t);window.__t=setTimeout(()=>t.classList.remove('show'),1800)}
+const LOCAL_PREFIX='elenya_image_reviewer_v1::';
+function hasGas(){return !!(window.google&&google.script&&google.script.run)}
+function localKey(datasetId){return LOCAL_PREFIX+(datasetId||state.datasetId||'pending')}
+function loadLocalSaved(datasetId){try{return JSON.parse(localStorage.getItem(localKey(datasetId))||'{}')||{}}catch(e){return {}}}
+function persistLocalSaved(){try{localStorage.setItem(localKey(),JSON.stringify(state.saved))}catch(e){}}
+function server(fn,...args){
+  if(hasGas()) return new Promise((resolve,reject)=>{
+    let r=google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(new Error(e&&e.message?e.message:String(e))));
+    r[fn](...args);
+  });
+  return fetch('/api/gas/'+encodeURIComponent(fn),{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({args:args})
+  }).then(r=>r.json()).then(data=>{
+    if(data&&data.ok)return data.result;
+    throw new Error((data&&data.error)||'Erreur API');
+  });
+}
+function normalizeSaved(raw){
+  const out={};
+  Object.keys(raw||{}).forEach(sceneId=>{
+    const entry=raw[sceneId]||{};
+    if(entry.targets&&typeof entry.targets==='object') out[sceneId]={targets:Object.assign({},entry.targets)};
+    else if(entry.action||entry.comment||entry.selectedImage||entry.currentImage) out[sceneId]={targets:{scene:Object.assign({targetKey:'scene',targetLabel:'Scène'},entry)}};
+    else out[sceneId]={targets:{}};
+  });
+  return out;
+}
+function sceneEntry(sceneId){if(!state.saved[sceneId])state.saved[sceneId]={targets:{}};if(!state.saved[sceneId].targets)state.saved[sceneId].targets={};return state.saved[sceneId]}
+function targetKeys(scene){return ['scene',...(scene?.choices||[]).map(c=>'choice:'+c.key)]}
+function targetSaved(sceneId,key){return sceneEntry(sceneId).targets[key]||{}}
+function sceneStatus(scene){
+  const keys=targetKeys(scene), vals=keys.map(k=>(targetSaved(scene.id,k).action||'pending'));
+  const done=vals.filter(v=>v!=='pending').length;
+  if(!done)return 'pending';
+  if(vals.includes('needs-new'))return 'needs-new';
+  if(vals.includes('replace'))return 'replace';
+  if(done<vals.length)return 'partial';
+  return 'keep';
+}
+function statusText(v){return {keep:'Tout validé',replace:'Remplacement choisi','needs-new':'Nouvelle image nécessaire',partial:'Tri partiel',pending:'À trier'}[v]||v}
+function assetName(a){return (a.name||a.path||'').replace(/\.(webp|png|jpg|jpeg|gif)$/i,'')}
+function activeTarget(){
+  if(!state.current)return {key:'scene',label:'Scène',kind:'scene',visuals:[]};
+  if(state.currentTarget==='scene')return {key:'scene',label:'Scène',kind:'scene',visuals:state.current.currentImages||[]};
+  const key=String(state.currentTarget||'').replace(/^choice:/,'');
+  const choice=(state.current.choices||[]).find(c=>String(c.key)===key);
+  return {key:'choice:'+key,label:'Choix '+key,kind:'choice',choice:choice||null,visuals:choice?.images||[]};
+}
+function loadTargetState(){
+  const t=activeTarget();
+  const saved=targetSaved(state.current.id,t.key);
+  state.currentVisual=t.visuals.find(v=>v.url===saved.currentImage)||t.visuals[0]||null;
+  state.candidate=saved.selectedImage?state.assets.find(a=>a.url===saved.selectedImage)||{url:saved.selectedImage,path:saved.selectedAssetPath||'',name:saved.selectedAssetPath||'Image choisie'}:null;
+  $('#comment').value=saved.comment||'';
+  $('#validationTitle').textContent='Validation visuelle — '+t.label;
+}
+
+async function init(){
+  try{
+    const data=await server(hasGas()?'imageReviewerBootstrap':'imageReviewerWebBootstrap');
+    state.scenes=data.scenes||[]; state.assets=data.assets||[];
+    state.datasetId=data.datasetId; state.buildVersion=data.buildVersion;
+    state.saved=normalizeSaved(Object.assign({},data.savedSelections||{},loadLocalSaved(data.datasetId)));
+    state.scenes.forEach(s=>state.byId.set(s.id,s));
+    $('#build').textContent=(data.buildVersion||'CURRENT')+' · '+state.scenes.length+' scènes · '+state.assets.length+' visuels disponibles';
+    setupFilters();
+    setupAssetGroups();
+    filterScenes();
+    renderAssets();
+    $('#loading').classList.add('hidden'); $('#view').classList.remove('hidden');
+    openScene(state.filtered[0]?.id||state.scenes[0]?.id);
+  }catch(e){
+    $('#loading').innerHTML='<b>Impossible de charger le reviewer images.</b><br><br>'+esc(e.message);
+  }
+}
+
+function setupFilters(){
+  const acts=[...new Set(state.scenes.map(s=>s.act).filter(Boolean))];
+  $('#actFilter').innerHTML='<option value="">Tous les actes</option>'+acts.map(a=>'<option>'+esc(a)+'</option>').join('');
+  $('#sceneSearch').addEventListener('input',filterScenes);
+  $('#actFilter').addEventListener('change',filterScenes);
+  $('#assetSearch').addEventListener('input',renderAssets);
+  $('#assetGroup').addEventListener('change',renderAssets);
+}
+
+function setupAssetGroups(){
+  const groups=[...new Set(state.assets.map(a=>a.group||String(a.path||'').split('/')[0]).filter(Boolean))].sort();
+  $('#assetGroup').innerHTML='<option value="">Toutes les images</option>'+groups.map(g=>'<option value="'+esc(g)+'">'+esc(g)+'</option>').join('');
+}
+
+function filterScenes(){
+  const q=$('#sceneSearch').value.trim().toLowerCase(), act=$('#actFilter').value;
+  state.filtered=state.scenes.filter(s=>{
+    if(act&&s.act!==act)return false;
+    const hay=(s.id+' '+s.title+' '+(s.choices||[]).map(c=>c.text).join(' ')).toLowerCase();
+    return !q||hay.includes(q);
+  });
+  renderSceneList();
+  updateProgress();
+}
+
+function renderSceneList(){
+  $('#sceneList').innerHTML=state.filtered.map(s=>{const st=sceneStatus(s);return '<div class="scene '+(state.current?.id===s.id?'active':'')+'" data-id="'+esc(s.id)+'"><i class="dot '+esc(st)+'"></i><div><b>'+esc(s.title)+'</b><small>'+esc(s.id)+' · '+esc(statusText(st))+'</small></div></div>'}).join('');
+  [...document.querySelectorAll('.scene')].forEach(el=>el.onclick=()=>openScene(el.dataset.id));
+}
+
+function updateProgress(){
+  let total=0,done=0;
+  state.scenes.forEach(s=>{
+    targetKeys(s).forEach(k=>{total++;if((targetSaved(s.id,k).action||'pending')!=='pending')done++});
+  });
+  $('#progress').textContent=done+' / '+total+' éléments triés';
+}
+
+function openScene(id){
+  const s=state.byId.get(id); if(!s)return;
+  state.current=s;
+  state.currentTarget='scene';
+  $('#sceneMeta').textContent=[s.act,s.campaign,s.mood].filter(Boolean).join(' · ');
+  $('#sceneTitle').textContent=s.title||s.id; $('#sceneId').textContent=s.id;
+  loadTargetState();
+  renderTargetBar();renderChoices();renderVariants();renderCandidate();renderSceneList();renderSaveState();showCurrent();
+  document.querySelector('main').scrollTo({top:0,behavior:'smooth'});
+}
+
+function switchTarget(key){
+  if(!state.current)return;
+  state.currentTarget=key;
+  loadTargetState();
+  renderTargetBar();renderChoices();renderVariants();renderCandidate();renderSaveState();showCurrent();
+}
+
+function renderTargetBar(){
+  if(!state.current)return;
+  const tabs=[
+    {key:'scene',label:'Scène',mark:'S'},
+    ...(state.current.choices||[]).map(c=>({key:'choice:'+c.key,label:'Choix '+c.key+' · '+(c.text||''),mark:c.key}))
+  ];
+  $('#targetBar').innerHTML=tabs.map(t=>'<button class="target-tab '+(state.currentTarget===t.key?'active':'')+'" data-target="'+esc(t.key)+'"><span class="mark">'+esc(t.mark)+'</span>'+esc(t.label)+'</button>').join('');
+  [...document.querySelectorAll('.target-tab')].forEach(el=>el.onclick=()=>switchTarget(el.dataset.target));
+}
+
+function renderChoices(){
+  const list=state.current?.choices||[];
+  $('#choices').innerHTML=list.length?list.map(x=>{
+    const key='choice:'+x.key, active=state.currentTarget===key, count=(x.images||[]).length;
+    return '<div class="choice '+(active?'active':'')+'"><b>'+esc(x.key)+'</b> <span>'+esc(x.text||'')+'</span>'+
+      '<div class="choice-actions"><button class="choice-edit" data-edit="'+esc(key)+'">Image / commentaire de ce choix</button>'+
+      '<span class="choice-visual-count">'+count+' image'+(count>1?'s':'')+' actuelle'+(count>1?'s':'')+'</span></div>'+
+      (x.next&&state.byId.has(x.next)?'<a data-next="'+esc(x.next)+'">Voir la scène suivante → '+esc(x.next)+'</a>':'')+'</div>';
+  }).join(''):'<div class="counter">Aucun choix sur cette scène.</div>';
+  [...document.querySelectorAll('[data-edit]')].forEach(b=>b.onclick=()=>switchTarget(b.dataset.edit));
+  [...document.querySelectorAll('[data-next]')].forEach(a=>a.onclick=()=>openScene(a.dataset.next));
+}
+
+function renderVariants(){
+  const list=activeTarget().visuals||[];
+  $('#variants').innerHTML=list.map((v,i)=>'<div class="variant '+(state.currentVisual?.url===v.url?'active':'')+'" data-i="'+i+'"><img src="'+esc(v.url)+'" loading="lazy"><div>'+esc(v.role+' · '+v.variant)+'</div></div>').join('');
+  [...document.querySelectorAll('.variant')].forEach(el=>el.onclick=()=>{state.currentVisual=list[Number(el.dataset.i)];state.candidate=null;renderVariants();renderCandidate();showCurrent()});
+}
+
+function showCurrent(){
+  const t=activeTarget(), saved=targetSaved(state.current?.id,t.key);
+  if(saved.action==='replace'&&state.candidate){
+    showPreview(state.candidate.url,t.label+' · image choisie · '+(state.candidate.name||state.candidate.path||''),state.candidate.fallbackUrl||'');
+    return;
+  }
+  const v=state.currentVisual;
+  if(v&&v.url) showPreview(v.url,t.label+' · image actuelle · '+v.role,state.candidate?.fallbackUrl||'');
+  else if(state.candidate) showPreview(state.candidate.url,t.label+' · image proposée',state.candidate.fallbackUrl||'');
+  else showPreview('',t.label+' · aucune image actuelle');
+}
+function showPreview(url,label,fallback){
+  $('#previewBadge').textContent=label;
+  const img=$('#preview');
+  if(!url){img.classList.add('hidden');$('#emptyPreview').classList.remove('hidden');return}
+  $('#emptyPreview').classList.add('hidden');img.classList.remove('hidden');
+  img.onerror=()=>{
+    if(fallback&&img.dataset.fallbackUsed!=='1'){
+      img.dataset.fallbackUsed='1';
+      img.src=fallback;
+      return;
+    }
+    img.onerror=null;
+  };
+  img.dataset.fallbackUsed='0';
+  img.src=url;
+}
+
+function renderAssets(){
+  const q=$('#assetSearch').value.trim().toLowerCase(), group=$('#assetGroup').value;
+  const list=state.assets.filter(a=>(!group||(a.group||String(a.path||'').split('/')[0])===group)&&(!q||(a.path+' '+a.name).toLowerCase().includes(q)));
+  $('#assetCount').textContent=list.length+' images affichées';
+  $('#assetList').innerHTML=list.map(a=>{
+    const primary=esc(a.url||'');
+    const fallback=esc(a.fallbackUrl||a.url||'');
+    return '<div class="asset '+(state.candidate?.id===a.id?'active':'')+'" data-id="'+esc(a.id)+'">'+
+      '<div class="asset-thumb" style="background-image:url(&quot;'+primary+'&quot;),url(&quot;'+fallback+'&quot;)"></div>'+
+      '<div class="asset-label" title="'+esc(a.path)+'">'+esc(assetName(a))+'</div></div>';
+  }).join('');
+  [...document.querySelectorAll('.asset')].forEach(el=>el.onclick=()=>{
+    state.candidate=state.assets.find(a=>a.id===el.dataset.id)||null;
+    renderAssets();renderCandidate();
+    if(state.candidate){
+      showPreview(state.candidate.url,'Prévisualisation · '+assetName(state.candidate),state.candidate.fallbackUrl||'');
+    }
+    if(innerWidth<1050)$('#assetsPane').classList.remove('open');
+  });
+}
+function renderCandidate(){
+  const a=state.candidate;
+  $('#assetSelected').textContent=a?(a.path||a.name||a.url):'Aucune image sélectionnée.';
+  $('#selectedLabel').textContent=a?'Remplacement sélectionné : '+(a.path||a.name||a.url):'Aucune image de remplacement sélectionnée.';
+}
+$('#useAssetBtn').onclick=()=>{if(!state.candidate)return toast('Sélectionne une image.');showPreview(state.candidate.url,'Prévisualisation · '+assetName(state.candidate),state.candidate.fallbackUrl||'');if(innerWidth<1050)$('#assetsPane').classList.remove('open')};
+
+async function save(action){
+  if(!state.current)return;
+  if(action==='replace'&&!state.candidate)return toast('Sélectionne d’abord une image dans la sidebar.');
+  const t=activeTarget();
+  const payload={
+    datasetId:state.datasetId,buildVersion:state.buildVersion,sceneId:state.current.id,sceneTitle:state.current.title,act:state.current.act,
+    targetKey:t.key,targetLabel:t.label,
+    action:action,currentImage:state.currentVisual?.url||'',
+    selectedImage:action==='replace'?(state.candidate?.url||''):'',
+    selectedAssetPath:action==='replace'?(state.candidate?.path||''):'',
+    comment:$('#comment').value.trim()
+  };
+  $('#saveState').textContent='Enregistrement…';
+  try{
+    let updatedAt=new Date().toISOString();
+    if(hasGas()){
+      const r=await server('imageReviewerSave',payload);
+      updatedAt=r.updatedAt||updatedAt;
+    }
+    sceneEntry(state.current.id).targets[t.key]={
+      targetKey:t.key,targetLabel:t.label,
+      action:action,currentImage:payload.currentImage,selectedImage:payload.selectedImage,
+      selectedAssetPath:payload.selectedAssetPath,comment:payload.comment,updatedAt:updatedAt
+    };
+    persistLocalSaved();
+    renderSaveState();renderSceneList();renderTargetBar();updateProgress();
+    toast(hasGas()?'Enregistré':'Enregistré sur cet appareil');
+  }catch(e){$('#saveState').textContent='Erreur : '+e.message}
+}
+function renderSaveState(){
+  const t=activeTarget(), s=targetSaved(state.current?.id,t.key);
+  $('#saveState').textContent=t.label+' · '+statusText(s.action||'pending')+(s.updatedAt?' · '+new Date(s.updatedAt).toLocaleString():'')+(hasGas()?'':' · sauvegarde locale');
+}
+$('#keepBtn').onclick=()=>save('keep');
+$('#replaceBtn').onclick=()=>save('replace');
+$('#needBtn').onclick=()=>save('needs-new');
+$('#saveCommentBtn').onclick=()=>{const t=activeTarget();save(targetSaved(state.current?.id,t.key).action||'pending')};
+
+function move(delta){
+  if(!state.current||!state.filtered.length)return;
+  const i=state.filtered.findIndex(s=>s.id===state.current.id);
+  const n=Math.max(0,Math.min(state.filtered.length-1,i+delta));
+  openScene(state.filtered[n].id);
+}
+
+$('#importBtn').onclick=()=>$('#importFile').click();
+$('#importFile').onchange=async event=>{
+  const input=event.target, file=input.files&&input.files[0];
+  if(!file)return;
+  try{
+    if(file.size>2*1024*1024)throw new Error('Fichier trop volumineux.');
+    const data=JSON.parse(await file.text());
+    if(data.type!=='ELENYA_IMAGE_REVIEW'||data.version!==1||data.datasetId!==state.datasetId||data.buildVersion!==state.buildVersion)
+      throw new Error('Ce tri ne correspond pas à la version '+state.buildVersion+'.');
+    if(!data.selections||typeof data.selections!=='object'||Array.isArray(data.selections))
+      throw new Error('Aucune sélection valide dans ce fichier.');
+    const imported=normalizeSaved(data.selections), merge={...state.saved};
+    let count=0;
+    Object.entries(imported).forEach(([sceneId,entry])=>{
+      const scene=state.byId.get(sceneId);
+      if(!scene)return;
+      const targets={...(merge[sceneId]?.targets||{})};
+      Object.entries(entry.targets||{}).forEach(([key,value])=>{
+        if(!targetKeys(scene).includes(key)||!value||!['pending','keep','replace','needs-new'].includes(value.action))return;
+        targets[key]={...value,targetKey:key};
+        count++;
+      });
+      merge[sceneId]={targets};
+    });
+    if(!count)throw new Error('Aucune sélection reconnue pour ce jeu.');
+    state.saved=merge;
+    persistLocalSaved();
+    if(state.current)switchTarget(state.currentTarget);
+    renderSceneList();updateProgress();
+    toast(count+' validations importées');
+  }catch(e){toast('Import impossible : '+e.message)}
+  finally{input.value=''}
+};
+$('#exportBtn').onclick=()=>{
+  const payload={
+    type:'ELENYA_IMAGE_REVIEW',
+    version:1,
+    buildVersion:state.buildVersion,
+    datasetId:state.datasetId,
+    exportedAt:new Date().toISOString(),
+    selections:state.saved
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='elenya-tri-images-'+String(state.buildVersion||'current').replace(/[^a-z0-9._-]+/gi,'-')+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('Export JSON créé');
+};
+
+$('#prevBtn').onclick=()=>move(-1); $('#nextBtn').onclick=()=>move(1);
+$('#assetToggle').onclick=()=>$('#assetsPane').classList.toggle('open');
+if(matchMedia('(max-width:1050px)').matches)$('#assetToggle').classList.remove('hidden');
+window.addEventListener('resize',()=>{if(innerWidth<=1050)$('#assetToggle').classList.remove('hidden');else{$('#assetToggle').classList.add('hidden');$('#assetsPane').classList.remove('open')}});
+
+init();
+</script>
+</body>
+</html>

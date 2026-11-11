@@ -1,0 +1,57 @@
+body.game-live .narrative {
+  --k: clamp(.4px, .14vmin, 1px);          /* 1 px de maquette = --k ; règle l'échelle de tout le cadre */
+  border: 0; border-radius: 0;
+  background-color: transparent;
+  background-image:
+    var(--fx-noise),
+    radial-gradient(70% 160% at 50% 50%, rgba(216,228,244,.58), rgba(176,193,219,.46) 58%, rgba(112,130,165,.40)),
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 40%);
+  background-size: 160px 160px, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  -webkit-backdrop-filter: blur(4px) saturate(1.2) brightness(1.1);
+          backdrop-filter: blur(4px) saturate(1.2) brightness(1.1);
+  box-shadow: inset 0 0 calc(var(--k) * 30) rgba(255,255,255,.20), 0 calc(var(--k) * 12) calc(var(--k) * 34) rgba(3,10,28,.45);
+  color: #07122a; text-align: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,.38);
+}
+body.game-live .narrative::before, body.game-live .narrative::after {
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(var(--k) * -36);
+  background-repeat: no-repeat;
+}
+body.game-live .narrative::before {
+  z-index: 3;
+  background-image: var(--rn-tl), var(--rn-tr), var(--rn-bl), var(--rn-br), var(--rn-gem-l), var(--rn-gem-r), var(--rn-star-l), var(--rn-star-r), var(--rn-top), var(--rn-bottom);
+  background-size:
+    calc(var(--k) * 200) calc(var(--k) * 76),
+    calc(var(--k) * 212) calc(var(--k) * 76),
+    calc(var(--k) * 200) calc(var(--k) * 75),
+    calc(var(--k) * 212) calc(var(--k) * 75),
+    calc(var(--k) * 72) calc(var(--k) * 36),
+    calc(var(--k) * 60) calc(var(--k) * 36),
+    calc(var(--k) * 60) calc(var(--k) * 52),
+    calc(var(--k) * 58) calc(var(--k) * 52),
+    calc(var(--k) * 88) calc(var(--k) * 32),
+    calc(var(--k) * 88) calc(var(--k) * 31);
+  background-position:
+    left calc(var(--k) * 22) top calc(var(--k) * 20.5),
+    right calc(var(--k) * 2) top calc(var(--k) * 20.5),
+    left calc(var(--k) * 22) bottom calc(var(--k) * 22),
+    right calc(var(--k) * 2) bottom calc(var(--k) * 22),
+    left calc(var(--k) * 4) top calc(50% + calc(var(--k) * -0.25)),
+    right calc(var(--k) * 0) top calc(50% + calc(var(--k) * -0.25)),
+    left calc(var(--k) * 78) top calc(50% + calc(var(--k) * -0.25)),
+    right calc(var(--k) * 76) top calc(50% + calc(var(--k) * -0.25)),
+    calc(50% + calc(var(--k) * 6)) calc(var(--k) * 22.5),
+    calc(50% + calc(var(--k) * 6)) calc(100% - calc(var(--k) * 22));
+}
+body.game-live .narrative::after {
+  z-index: 2;
+  background-image: var(--rn-edge-l), var(--rn-edge-r), var(--rn-edge-t), var(--rn-edge-b);
+  background-size: calc(var(--k) * 12) calc(var(--k) * 8), calc(var(--k) * 12) calc(var(--k) * 8), calc(var(--k) * 8) calc(var(--k) * 16), calc(var(--k) * 8) calc(var(--k) * 16);
+  background-repeat: repeat-y, repeat-y, repeat-x, repeat-x;
+  background-position: left calc(var(--k) * 33) top 0, right calc(var(--k) * 33) top 0, left 0 top calc(var(--k) * 30.5), left 0 bottom calc(var(--k) * 31);
+  -webkit-clip-path: polygon(min(calc(var(--k) * 222), 50%) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 0, max(calc(100% - calc(var(--k) * 214)), 50%) 0, max(calc(100% - calc(var(--k) * 214)), 50%) calc(var(--k) * 96.5), 100% calc(var(--k) * 96.5), 100% max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 100%, min(calc(var(--k) * 222), 50%) 100%, min(calc(var(--k) * 222), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 min(calc(var(--k) * 96.5), 50%), min(calc(var(--k) * 222), 50%) min(calc(var(--k) * 96.5), 50%));
+          clip-path: polygon(min(calc(var(--k) * 222), 50%) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 0, max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(var(--k) * 54.5), max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 0, max(calc(100% - calc(var(--k) * 214)), 50%) 0, max(calc(100% - calc(var(--k) * 214)), 50%) calc(var(--k) * 96.5), 100% calc(var(--k) * 96.5), 100% max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), calc(100% - calc(var(--k) * 60)) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), 100% max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), max(calc(100% - calc(var(--k) * 214)), 50%) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) 100%, max(max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))), min(max(calc(100% - calc(var(--k) * 214)), 50%), calc(50% + calc(var(--k) * 6) + calc(var(--k) * 44)))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) calc(100% - calc(var(--k) * 53)), max(min(calc(var(--k) * 222), 50%), calc(50% + calc(var(--k) * 6) - calc(var(--k) * 44))) 100%, min(calc(var(--k) * 222), 50%) 100%, min(calc(var(--k) * 222), 50%) max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(calc(100% - calc(var(--k) * 97)), 50%), 0 max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), min(max(calc(100% - calc(var(--k) * 97)), 50%), calc(50% + calc(var(--k) * -0.25) + calc(var(--k) * 18)))), calc(var(--k) * 76) max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 max(min(calc(var(--k) * 96.5), 50%), calc(50% + calc(var(--k) * -0.25) - calc(var(--k) * 18))), 0 min(calc(var(--k) * 96.5), 50%), min(calc(var(--k) * 222), 50%) min(calc(var(--k) * 96.5), 50%));
+}
+

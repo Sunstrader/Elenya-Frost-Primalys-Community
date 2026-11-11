@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ELENYA — L’Héritage de Primaëlys</title>
+<meta name="description" content="Visual novel de fantasy interactive avec NG+ Ultra, narration française via les voix système du navigateur, musiques et ambiances.">
+<meta property="og:title" content="ELENYA — L’Héritage de Primaëlys">
+<meta property="og:description" content="Visual novel de fantasy interactive avec NG+ Ultra, narration française via les voix système du navigateur, musiques et ambiances.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+
+<?!= include('Styles_Game'); ?>
+<?!= include('JRPG_UI_Styles'); ?>
+<?!= include('Cinematic_UI_Styles'); ?>
+<?!= include('Cinematic_UI_Landscape'); ?>
+</head>
+<body>
+<?!= include('Game_Interface'); ?>
+<?!= include('Character_Modular_Runtime'); ?>
+<?!= include('Character_3D_Runtime'); ?>
+<?!= include('Scripts_Game'); ?>
+<?!= include('Scripts_Refonte'); ?>
+<?!= include('JRPG_UI_Runtime'); ?>
+<?!= include('Cinematic_UI_Runtime'); ?>
+<?!= include('Cinematic_UI_InputGuard'); ?>
+</body>
+</html>

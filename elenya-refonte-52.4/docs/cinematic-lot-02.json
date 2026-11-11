@@ -1,0 +1,64 @@
+{
+  "version": "52.5.6-cinematic-visual-fix",
+  "assetCommit": "4d685f6b7dec62f52c74cd417b26844f690dbad7",
+  "checkedPreviousConversationImages": 9,
+  "integrated": [
+    {
+      "file": "11-jonction-des-routes.webp",
+      "scene": "ACTE1_06C_CONVERGENCE"
+    },
+    {
+      "file": "12-triangulation-tension.webp",
+      "scene": "ACTE1_07_RETROUVAILLES"
+    },
+    {
+      "file": "13-echo-de-neige-fen.webp",
+      "scene": "ACTE1_03_FAMILIER_2"
+    },
+    {
+      "file": "15-halte-groupe-neige.webp",
+      "scene": "ACTE1_08_SECRET",
+      "condition": "avec_ombre && avec_eclaireur"
+    },
+    {
+      "file": "17-protection-alistair.webp",
+      "scene": "ACTE1_06_REMONTEE",
+      "condition": "avec_eclaireur && !avec_ombre"
+    },
+    {
+      "file": "19-memoires-de-glace-fresque.webp",
+      "scene": "ACTE1_04_FRESQUE",
+      "condition": "voie_solo || voie_solo_profonde"
+    },
+    {
+      "file": "18-route-solo-avancee.webp",
+      "scene": "ACTE1_06_REMONTEE",
+      "condition": "voie_solo || voie_solo_profonde"
+    },
+    {
+      "file": "20-transition-acte-2.webp",
+      "scene": "TRANSITION_ACTE_2",
+      "condition": "chapter === 2"
+    }
+  ],
+  "reserved": [
+    {
+      "file": "14-chambre-apparition.webp",
+      "reason": "aucune scène canonique parfaitement compatible dans la version actuelle"
+    },
+    {
+      "file": "16-protection-kaelen.webp",
+      "reason": "aucune scène canonique parfaitement compatible dans la version actuelle"
+    }
+  ],
+  "narrationChanged": false,
+  "choicesChanged": false,
+  "savesChanged": false,
+  "visualFixes": {
+    "cinematicImagesSuppressSprites": true,
+    "topHeaderBandRemoved": true,
+    "duelGiantSpritesRemoved": true,
+    "echoSnowGiantSpritesRemoved": true,
+    "strayCenterElenyaRemoved": true
+  }
+}

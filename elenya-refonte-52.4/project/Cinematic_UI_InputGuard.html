@@ -1,0 +1,61 @@
+<script id="elenya-input-guard-v1">
+/* Le tap qui accélère le texte ne doit pas valider le choix apparu sous le doigt. */
+(function () {
+  'use strict';
+  if (window.ELENYA_INPUT_GUARD) return;
+  let advanceGestureUntil = 0;
+
+  function arm() {
+    advanceGestureUntil = Date.now() + 480;
+    const choices = document.getElementById('choices');
+    if (!choices) return;
+    choices.classList.add('jrpg-gesture-lock');
+    setTimeout(() => choices.classList.remove('jrpg-gesture-lock'), 480);
+  }
+
+  function choiceTarget(event) {
+    const t = event.target;
+    return !!(t && t.closest && t.closest('#choices, .choice-btn'));
+  }
+
+  function advance() {
+    if (!document.body.classList.contains('game-live')) return false;
+    if (typeof isTyping !== 'undefined' && isTyping && typeof skipTypeWriter === 'function') {
+      skipTypeWriter();
+      return true;
+    }
+    const ui = window.ELENYA_JRPG_UI;
+    if (ui && ui.state && !ui.state.pageComplete && typeof ui.reveal === 'function') {
+      ui.reveal();
+      return true;
+    }
+    return false;
+  }
+
+  document.addEventListener('pointerdown', function (event) {
+    if (!document.body.classList.contains('game-live')) return;
+    if (event.button != null && event.button !== 0) return;
+    const t = event.target;
+    if (t && t.closest && t.closest('input,textarea,select,#game-control-dock,.game-control-dock,.footer,#btn-landscape-menu,#btn-rf-narrate,#btn-fullscreen,#btn-mute,#game-quick-menu,#jrpg-next,#history-drawer,#rf-dialog,.rf-dialog,#narration-start-modal,a')) return;
+    if (document.querySelector('[id$="-modal"].show,#gallery-lightbox.show,#history-drawer.open,#rf-dialog:not([hidden])')) return;
+    const ui = window.ELENYA_JRPG_UI;
+    const ready = ui && ui.state && ui.state.pageComplete && ui.state.index >= ui.state.pages.length - 1;
+    if (choiceTarget(event) && ready && Date.now() > advanceGestureUntil) return;
+    if (advance()) {
+      arm();
+      event.preventDefault();
+    }
+  }, true);
+
+  document.addEventListener('click', function (event) {
+    if (Date.now() > advanceGestureUntil) return;
+    const t = event.target;
+    if (t && t.closest && t.closest('#game-control-dock,.game-control-dock,.footer,#btn-landscape-menu,#btn-rf-narrate,#btn-fullscreen,#game-quick-menu,#jrpg-next,#narration-start-modal,[id$="-modal"]')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }, true);
+
+  window.ELENYA_INPUT_GUARD = { version: '1.2.0' };
+})();
+</script>

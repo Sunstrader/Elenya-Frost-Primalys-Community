@@ -1,0 +1,82 @@
+{
+  "version": "52.5.5-cinematic-lot-01",
+  "assetCommit": "73b666c475f8b6ccb491d82d0bb3704779effd1f",
+  "rules": {
+    "spritesOverFullIllustration": false,
+    "narrationChanged": false,
+    "choicesChanged": false
+  },
+  "mappings": [
+    {
+      "file": "01-ouverture-ruines-glacees.webp",
+      "scenes": [
+        "ACTE1_01_REVEIL_DETAILS"
+      ],
+      "condition": "always"
+    },
+    {
+      "file": "02-duel-des-ombres.webp",
+      "scenes": [
+        "ACTE1_02_RENCONTRE_1",
+        "ACTE1_02_RENCONTRE_2"
+      ],
+      "condition": "always"
+    },
+    {
+      "file": "03-echo-neige-dechainement-givre.webp",
+      "scenes": [
+        "ACTE1_03_FAMILIER_1"
+      ],
+      "condition": "react_givre"
+    },
+    {
+      "file": "04-choix-route-ombre.webp",
+      "scenes": [
+        "ACTE1_05_BIVOUAC"
+      ],
+      "condition": "avec_ombre && !avec_eclaireur"
+    },
+    {
+      "file": "05-choix-route-eclaireur.webp",
+      "scenes": [
+        "ACTE1_07E_RETROUVAILLES_ALISTAIR"
+      ],
+      "condition": "always"
+    },
+    {
+      "file": "06-choix-route-solo.webp",
+      "scenes": [
+        "ACTE1_SOLO_ECHO"
+      ],
+      "condition": "solo"
+    },
+    {
+      "file": "07-chaleur-des-profondeurs.webp",
+      "scenes": [
+        "ACTE1_05B_REVEIL_BIVOUAC"
+      ],
+      "condition": "ombre seule"
+    },
+    {
+      "file": "08-cendres-froides.webp",
+      "scenes": [
+        "ACTE1_05B_REVEIL_BIVOUAC"
+      ],
+      "condition": "eclaireur seul"
+    },
+    {
+      "file": "09-a-bout-de-souffle-kaelen.webp",
+      "scenes": [
+        "ACTE1_06_REMONTEE"
+      ],
+      "condition": "ombre seule"
+    },
+    {
+      "file": "10-ce-que-le-feu-ne-dit-pas.webp",
+      "scenes": [
+        "ACTE1_08B_BIVOUAC_LISIERE"
+      ],
+      "condition": "ombre + eclaireur"
+    }
+  ]
+}

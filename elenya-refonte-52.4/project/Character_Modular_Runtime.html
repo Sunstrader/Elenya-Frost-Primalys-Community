@@ -1,0 +1,473 @@
+<style id="elenya-modular-2d-style">
+.sprite-layer .modular-character {
+  position:absolute;
+  bottom:0;
+  height:100%;
+  aspect-ratio:2 / 3;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .28s ease;
+  transform-origin:50% 100%;
+  --head-r:0deg;
+  --torso-r:0deg;
+  --arm-l-r:-.25deg;
+  --arm-r-r:.25deg;
+  --rig-head-lift:-1.6px;
+  --rig-torso-scale:1.006;
+  --rig-arm-lift:-1px;
+  --rig-idle-duration:6.4s;
+  --rig-active-duration:4.8s;
+}
+#sprite-center .modular-character { left:50%; transform:translateX(-50%); }
+#sprite-left .modular-character { left:0; }
+#sprite-right .modular-character { right:0; }
+.sprite-layer .modular-character.framing-close { height:108%; }
+.sprite-layer .modular-character.framing-medium { height:100%; }
+.sprite-layer .modular-character.framing-wide { height:93%; }
+#sprite-left .modular-character.framing-wide { left:-3%; }
+#sprite-right .modular-character.framing-wide { right:-3%; }
+#sprite-left .modular-character.framing-close { left:3%; }
+#sprite-right .modular-character.framing-close { right:3%; }
+.sprite-layer.modular-ready .modular-character { opacity:1; }
+.sprite-layer.modular-loading::before,
+.sprite-layer.modular-loading::after,
+.sprite-layer.modular-ready::before,
+.sprite-layer.modular-ready::after {
+  content:none !important;
+  opacity:0 !important;
+}
+
+.sprite-layer .modular-layer {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  pointer-events:none;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+.sprite-layer .modular-character.pose-guarded {
+  --head-r:-.45deg;
+  --arm-l-r:1.2deg;
+  --arm-r-r:-1.2deg;
+}
+.sprite-layer .modular-character.pose-open {
+  --head-r:.35deg;
+  --arm-l-r:-1.4deg;
+  --arm-r-r:1.4deg;
+}
+.sprite-layer .modular-character.pose-combat {
+  --head-r:-.8deg;
+  --torso-r:-.35deg;
+  --arm-l-r:2.4deg;
+  --arm-r-r:-2.4deg;
+}
+.sprite-layer .modular-character.pose-injured {
+  --head-r:1.3deg;
+  --torso-r:1deg;
+  --arm-l-r:.8deg;
+  --arm-r-r:.6deg;
+}
+.sprite-layer .modular-character.expression-soft { filter:brightness(1.025) saturate(.98); }
+.sprite-layer .modular-character.expression-warm { filter:brightness(1.035) saturate(1.02); }
+.sprite-layer .modular-character.expression-worried,
+.sprite-layer .modular-character.expression-hurt { filter:brightness(.94) saturate(.88); }
+.sprite-layer .modular-character.expression-angry,
+.sprite-layer .modular-character.expression-determined,
+.sprite-layer .modular-character.expression-serious,
+.sprite-layer .modular-character.expression-cold { filter:contrast(1.035) saturate(1.04); }
+
+.sprite-layer .modular-character .rig-head {
+  animation:elenyaRigHead var(--rig-head-duration, var(--rig-idle-duration)) ease-in-out infinite;
+  transform-origin:var(--rig-origin, 50% 82%);
+}
+.sprite-layer .modular-character .rig-torso {
+  animation:elenyaRigTorso var(--rig-torso-duration, var(--rig-idle-duration)) ease-in-out infinite;
+  transform-origin:var(--rig-origin, 50% 76%);
+}
+.sprite-layer .modular-character .rig-arm-left {
+  animation:elenyaRigArmLeft var(--rig-arm-duration, var(--rig-idle-duration)) ease-in-out infinite;
+  transform-origin:var(--rig-origin, 70% 34%);
+}
+.sprite-layer .modular-character .rig-arm-right {
+  animation:elenyaRigArmRight var(--rig-arm-duration, var(--rig-idle-duration)) ease-in-out infinite;
+  transform-origin:var(--rig-origin, 30% 34%);
+}
+.sprite-layer .modular-character .rig-lower {
+  transform-origin:var(--rig-origin, 50% 4%);
+}
+.sprite-layer .modular-character.anim-active {
+  --rig-head-duration:var(--rig-active-duration);
+  --rig-torso-duration:var(--rig-active-duration);
+  --rig-arm-duration:var(--rig-active-duration);
+}
+.sprite-layer .modular-character.pose-combat .rig-head,
+.sprite-layer .modular-character.pose-combat .rig-torso,
+.sprite-layer .modular-character.pose-combat .rig-arm-left,
+.sprite-layer .modular-character.pose-combat .rig-arm-right,
+.sprite-layer .modular-character.pose-injured .rig-head,
+.sprite-layer .modular-character.pose-injured .rig-torso,
+.sprite-layer .modular-character.pose-injured .rig-arm-left,
+.sprite-layer .modular-character.pose-injured .rig-arm-right {
+  animation-duration:8.6s;
+}
+
+@keyframes elenyaRigHead {
+  0%,100% { transform:translate3d(0,0,0) rotate(var(--head-r)); }
+  50% { transform:translate3d(0,var(--rig-head-lift),0) rotate(var(--head-r)); }
+}
+@keyframes elenyaRigTorso {
+  0%,100% { transform:scaleY(1) rotate(var(--torso-r)); }
+  50% { transform:scaleY(var(--rig-torso-scale)) rotate(var(--torso-r)); }
+}
+@keyframes elenyaRigArmLeft {
+  0%,100% { transform:rotate(var(--arm-l-r)) translateY(0); }
+  50% { transform:rotate(var(--arm-l-r)) translateY(var(--rig-arm-lift)); }
+}
+@keyframes elenyaRigArmRight {
+  0%,100% { transform:rotate(var(--arm-r-r)) translateY(0); }
+  50% { transform:rotate(var(--arm-r-r)) translateY(var(--rig-arm-lift)); }
+}
+
+/* Les vraies couches dédiées pourront remplacer le découpage automatique sans changer le moteur. */
+.sprite-layer .modular-character:not(.auto-rig):not(.dedicated-rig).anim-idle,
+.sprite-layer .modular-character:not(.auto-rig):not(.dedicated-rig).anim-talk {
+  animation:elenyaModularBreath 5.8s ease-in-out infinite;
+}
+.sprite-layer .modular-character:not(.auto-rig) .modular-layer[data-part="eyes"] {
+  animation:elenyaModularBlink 5.4s steps(1,end) infinite;
+}
+.sprite-layer .modular-character .rig-blink {
+  opacity:0;
+  animation:elenyaNaturalBlink 6.4s steps(1,end) infinite;
+}
+#sprite-left .rig-blink { animation-delay:-1.1s; }
+#sprite-right .rig-blink { animation-delay:-3.2s; }
+@keyframes elenyaModularBreath {
+  0%,100% { transform:translateY(0) scale(1); }
+  50% { transform:translateY(-2px) scale(1.006,1.010); }
+}
+@keyframes elenyaModularBlink {
+  0%,94%,100% { opacity:1; }
+  95%,97% { opacity:.12; }
+}
+@keyframes elenyaNaturalBlink {
+  0%,90%,92.8%,96%,100% { opacity:0; }
+  90.8%,92% { opacity:1; }
+  96.7%,97.8% { opacity:1; }
+}
+
+@media (max-width:760px) and (orientation:portrait) {
+  body.game-live.cinema-cast-duo .sprite-layer .modular-character { height:96%; }
+  body.game-live.cinema-cast-single .sprite-layer .modular-character { height:100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sprite-layer .modular-character,
+  .sprite-layer .modular-layer { animation:none !important; }
+}
+</style>
+<script>
+(function () {
+  'use strict';
+
+  const MANIFEST_URL = 'https://cdn.jsdelivr.net/gh/Sunstrader/elenya-3d-assets@f587a9ffeebf456288f9e684d5b861fc2fc630d9/game-v56/modular/manifest.json';
+  const slots = { 'sprite-center':'center', 'sprite-left':'left', 'sprite-right':'right' };
+  const tokens = { center:0, left:0, right:0 };
+  const current = { center:null, left:null, right:null };
+  let manifestPromise = null;
+
+  function characterId(url) {
+    const value = String(url || '').toLowerCase();
+    if (!value) return null;
+    // Important : le dépôt lui-même s'appelle "elenya-3d-assets".
+    // On ne doit donc jamais identifier un personnage en cherchant son nom
+    // dans toute l'URL, sinon Kaelen/Alistair deviennent Elenya.
+    let path = value;
+    try { path = new URL(value, location.href).pathname.toLowerCase(); } catch (_) {}
+    const leaf = decodeURIComponent(path.split('/').pop() || '').replace(/\?.*$/, '');
+    const candidates = ['kaelen','alistair','elenya'];
+    return candidates.find(id =>
+      leaf === id || leaf.startsWith(id + '.') || leaf.startsWith(id + '-') || leaf.startsWith(id + '_') ||
+      path.includes('/sprites/' + id + '.') || path.includes('/sprites/' + id + '-') ||
+      path.includes('/characters/' + id + '/')
+    ) || null;
+  }
+
+  function loadManifest() {
+    if (!manifestPromise) {
+      manifestPromise = fetch(MANIFEST_URL, { cache:'no-store' })
+        .then(r => { if (!r.ok) throw new Error('modular-manifest'); return r.json(); })
+        .catch(err => { manifestPromise = null; throw err; });
+    }
+    return manifestPromise;
+  }
+
+  function resolveUrl(baseUrl, value) {
+    if (!value) return null;
+    try { return new URL(value, baseUrl).href; }
+    catch (_) { return value; }
+  }
+
+  function clearLayer(spriteLayerId) {
+    const slot = slots[spriteLayerId];
+    const spriteLayer = document.getElementById(spriteLayerId);
+    if (!slot || !spriteLayer) return;
+    ++tokens[slot];
+    current[slot] = null;
+    spriteLayer.classList.remove('modular-loading', 'modular-ready');
+    spriteLayer.removeAttribute('data-modular-character');
+    spriteLayer.removeAttribute('data-modular-outfit');
+    spriteLayer.removeAttribute('data-modular-expression');
+    spriteLayer.removeAttribute('data-modular-pose');
+    spriteLayer.removeAttribute('data-modular-framing');
+    spriteLayer.removeAttribute('data-modular-layout');
+    spriteLayer.querySelectorAll('.modular-character').forEach(el => el.remove());
+  }
+
+  function normalizeState(entry, requested) {
+    const base = Object.assign({}, entry.defaultState || {});
+    const req = requested && typeof requested === 'object' ? requested : {};
+    const state = Object.assign(base, req);
+    if (!state.outfit) state.outfit = 'base';
+    if (!state.expression) state.expression = 'neutral';
+    if (!state.pose) state.pose = 'idle';
+    if (!state.animation) state.animation = 'idle';
+    return state;
+  }
+
+  function requestedStateFor(id, stage) {
+    if (!stage || typeof stage !== 'object') return null;
+    const chars = stage.characters || stage.characterStates || null;
+    if (!chars || typeof chars !== 'object') return null;
+    return chars[id] || null;
+  }
+
+  function outfitFor(entry, state) {
+    return (entry.outfits && entry.outfits[state.outfit]) ||
+      (entry.outfits && entry.outfits.base) ||
+      Object.values(entry.outfits || {})[0] ||
+      null;
+  }
+
+  function collectDedicatedLayers(data, entry, state) {
+    const result = [];
+    const outfit = outfitFor(entry, state);
+    if (!outfit) return result;
+
+    if (outfit.layers && typeof outfit.layers === 'object') {
+      Object.entries(outfit.layers).forEach(([part, value], index) => {
+        if (!value) return;
+        const src = typeof value === 'string' ? value : value.src;
+        const z = typeof value === 'object' && Number.isFinite(value.z) ? value.z : 10 + index;
+        const className = typeof value === 'object' ? (value.className || '') : '';
+        const origin = typeof value === 'object' ? (value.origin || null) : null;
+        if (src) result.push({ part, src:resolveUrl(data.baseUrl, src), z, className, origin });
+      });
+    }
+
+    const dynamicSets = [
+      ['expression', entry.expressionLayers, state.expression, 60],
+      ['pose', entry.poseLayers, state.pose, 50],
+      ['accessory', entry.accessoryLayers, state.accessory, 70]
+    ];
+    dynamicSets.forEach(([part, map, key, z]) => {
+      if (!map || !key || !map[key]) return;
+      const value = map[key];
+      const src = typeof value === 'string' ? value : value.src;
+      const zi = typeof value === 'object' && Number.isFinite(value.z) ? value.z : z;
+      if (src) result.push({ part, src:resolveUrl(data.baseUrl, src), z:zi });
+    });
+
+    const animationDef = entry.animations && entry.animations[state.animation];
+    if (entry.blinkLayer && (!animationDef || animationDef.blink !== false)) {
+      result.push({
+        part:'blink',
+        src:resolveUrl(data.baseUrl, entry.blinkLayer),
+        z:90,
+        className:'rig-blink'
+      });
+    }
+
+    if (!result.length && outfit.base && !(entry.autoRig && entry.autoRig.enabled === true)) {
+      result.push({ part:'base', src:resolveUrl(data.baseUrl, outfit.base), z:0 });
+    }
+    return result.sort((a,b) => a.z - b.z);
+  }
+
+  function collectAutoRigLayers(data, entry, state) {
+    const outfit = outfitFor(entry, state);
+    const source = resolveUrl(data.baseUrl, (outfit && outfit.base) || entry.fallback);
+    const rig = entry.autoRig;
+    if (!source || !rig || rig.enabled !== true || !rig.regions) return [];
+
+    const order = [
+      ['lower','rig-lower',0],
+      ['torso','rig-torso',10],
+      ['armLeft','rig-arm-left',20],
+      ['armRight','rig-arm-right',21],
+      ['head','rig-head',30]
+    ];
+    return order.map(([key, cls, z]) => {
+      const region = rig.regions[key];
+      if (!region) return null;
+      return {
+        part:key,
+        className:cls,
+        src:source,
+        z,
+        clip:region.clip || 'none',
+        origin:region.origin || '50% 50%'
+      };
+    }).filter(Boolean);
+  }
+
+  function buildLayer(def, token, slot, onFirstLoad, onBaseFailure) {
+    const img = document.createElement('img');
+    img.className = 'modular-layer' + (def.className ? ' ' + def.className : '');
+    img.alt = '';
+    img.decoding = 'async';
+    img.loading = 'eager';
+    img.dataset.part = def.part;
+    img.style.zIndex = String(def.z || 0);
+    if (def.clip) img.style.clipPath = def.clip;
+    if (def.origin) img.style.setProperty('--rig-origin', def.origin);
+    img.onload = () => {
+      if (token !== tokens[slot]) return;
+      onFirstLoad();
+    };
+    img.onerror = () => {
+      if (token !== tokens[slot]) return;
+      onBaseFailure();
+    };
+    img.src = def.src;
+    return img;
+  }
+
+  async function showForSprite(spriteLayerId, spriteUrl, stage) {
+    const slot = slots[spriteLayerId];
+    const spriteLayer = document.getElementById(spriteLayerId);
+    if (!slot || !spriteLayer) return false;
+
+    if (!spriteUrl || spriteUrl === 'none') {
+      clearLayer(spriteLayerId);
+      return false;
+    }
+
+    const id = characterId(spriteUrl);
+    if (!id) {
+      clearLayer(spriteLayerId);
+      return false;
+    }
+
+    const token = ++tokens[slot];
+    spriteLayer.classList.add('modular-loading');
+    spriteLayer.classList.remove('modular-ready', 'fading');
+    try {
+      const data = await loadManifest();
+      const entry = data.characters && data.characters[id];
+      if (!entry || entry.enabled !== true || token !== tokens[slot]) {
+        clearLayer(spriteLayerId);
+        return false;
+      }
+
+      const state = normalizeState(entry, requestedStateFor(id, stage));
+      let layers = collectDedicatedLayers(data, entry, state);
+      const dynamicParts = new Set(['expression', 'pose', 'accessory', 'blink']);
+      const hasStructuralLayers = layers.some(def => def && !dynamicParts.has(def.part));
+      const dedicatedRig = layers.some(def => def && /^rig-/.test(String(def.className || '')));
+      let autoRig = false;
+      if (!hasStructuralLayers) {
+        const dynamicLayers = layers.slice();
+        const rigLayers = collectAutoRigLayers(data, entry, state);
+        if (rigLayers.length) {
+          layers = rigLayers.concat(dynamicLayers).sort((a,b) => a.z - b.z);
+          autoRig = true;
+        }
+      }
+      if (!layers.length && entry.fallback) {
+        layers = [{part:'base', src:resolveUrl(data.baseUrl, entry.fallback), z:0}];
+      }
+      if (!layers.length) {
+        clearLayer(spriteLayerId);
+        return false;
+      }
+
+      const host = document.createElement('div');
+      const safe = value => String(value || '').replace(/[^a-z0-9_-]/gi,'');
+      host.className = [
+        'modular-character',
+        autoRig ? 'auto-rig' : '',
+        dedicatedRig ? 'dedicated-rig' : '',
+        'anim-' + safe(state.animation || 'idle'),
+        'pose-' + safe(state.pose || 'idle'),
+        'expression-' + safe(state.expression || 'neutral'),
+        'framing-' + safe(stage && stage.framing || 'medium')
+      ].filter(Boolean).join(' ');
+      host.setAttribute('aria-hidden','true');
+      if (entry.autoRig && Array.isArray(entry.autoRig.aspectRatio) && entry.autoRig.aspectRatio.length === 2) {
+        host.style.aspectRatio = String(entry.autoRig.aspectRatio[0]) + ' / ' + String(entry.autoRig.aspectRatio[1]);
+      }
+      if (entry.motionProfile && typeof entry.motionProfile === 'object') {
+        const motion = entry.motionProfile;
+        const n = (value, fallback) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+        host.style.setProperty('--rig-head-lift', (-Math.abs(n(motion.headLiftPx, 1.6))) + 'px');
+        host.style.setProperty('--rig-torso-scale', String(n(motion.torsoScale, 1.006)));
+        host.style.setProperty('--rig-arm-lift', (-Math.abs(n(motion.armLiftPx, 1))) + 'px');
+        host.style.setProperty('--rig-idle-duration', Math.max(2.5, n(motion.idleSeconds, 6.4)) + 's');
+        host.style.setProperty('--rig-active-duration', Math.max(2.2, n(motion.activeSeconds, 4.8)) + 's');
+      }
+
+      let ready = false;
+      const markReady = () => {
+        if (ready || token !== tokens[slot]) return;
+        ready = true;
+        spriteLayer.classList.remove('modular-loading', 'fading');
+        spriteLayer.classList.add('modular-ready');
+        spriteLayer.style.setProperty('--sprite-before', 'none');
+        spriteLayer.style.setProperty('--sprite-after', 'none');
+      };
+      const fail = () => {
+        if (token !== tokens[slot]) return;
+        clearLayer(spriteLayerId);
+      };
+
+      layers.forEach(def => host.appendChild(buildLayer(def, token, slot, markReady, fail)));
+      spriteLayer.querySelectorAll('.modular-character').forEach(el => el.remove());
+      spriteLayer.appendChild(host);
+      spriteLayer.dataset.modularCharacter = id;
+      spriteLayer.dataset.modularOutfit = state.outfit;
+      spriteLayer.dataset.modularExpression = state.expression;
+      spriteLayer.dataset.modularPose = state.pose;
+      spriteLayer.dataset.modularFraming = stage && stage.framing || 'medium';
+      spriteLayer.dataset.modularLayout = stage && stage.layout || 'explicit';
+      current[slot] = { id, spriteUrl, stage:stage || null, state };
+      return true;
+    } catch (_) {
+      clearLayer(spriteLayerId);
+      return false;
+    }
+  }
+
+  function syncStage(stage) {
+    Object.entries(slots).forEach(([spriteLayerId, slot]) => {
+      const item = current[slot];
+      if (!item) return;
+      showForSprite(spriteLayerId, item.spriteUrl, stage || item.stage);
+    });
+  }
+
+  function isActiveForSprite(spriteLayerId) {
+    const el = document.getElementById(spriteLayerId);
+    return !!(el && el.classList.contains('modular-ready'));
+  }
+
+  window.ElenyaModular = {
+    version:'2.0.0',
+    showForSprite,
+    clearLayer,
+    syncStage,
+    isActiveForSprite
+  };
+}());
+</script>

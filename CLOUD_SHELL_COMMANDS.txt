@@ -1,0 +1,49 @@
+ELENYA 52.5.0 — CLOUD SHELL / GITHUB
+===================================
+
+OBJECTIF : valider et publier la version GitHub/Node actuelle.
+Google Apps Script n’est plus le flux de déploiement de référence.
+
+1) Ouvrir le dépôt
+------------------
+cd ~/Elenya-Frost-Primalys
+git pull --ff-only
+
+2) Vérifier le projet
+---------------------
+npm test
+npm run lint
+npm run build
+npm run voice:status
+
+3) Préparer Gemini FREE uniquement (si génération voix nécessaire)
+-----------------------------------------------------------------
+bash scripts/prepare-gemini-free.sh
+
+4) Générer les aperçus
+----------------------
+npm run voice:previews
+npm run voice:status
+
+5) Générer Sulafat ou les quatre voix
+-------------------------------------
+npm run voice:generate
+# ou
+npm run voice:generate:all
+
+6) Publier le pack vocal si nécessaire
+---------------------------------------
+bash scripts/publish-voice-pack.sh
+
+7) Publier le code GitHub
+-------------------------
+git status
+git add -A
+git commit -m "chore: polish 52.5.0"
+git push
+
+SÉCURITÉ
+--------
+- Ne lance pas scripts/prepare-cloud-tts.sh : il est désactivé.
+- N’active pas la facturation pour le projet Gemini Free.
+- Toujours exécuter npm test + npm run lint + npm run build avant le push.

@@ -1,0 +1,8 @@
+{
+  "name": "Elenya — L’Héritage de Primaëlys",
+  "description": "Visual novel de fantasy interactive avec NG+ Ultra, narration française via les voix système du navigateur, musiques et ambiances.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
