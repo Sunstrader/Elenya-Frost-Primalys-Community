@@ -1,0 +1,27 @@
+name: Elenya QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Runtime
+        run: node --version && npm --version
+      - name: Build
+        run: npm run build
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test
